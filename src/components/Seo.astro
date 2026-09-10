@@ -1,6 +1,6 @@
 ---
 import { site } from '../data/site';
-import { alternates, locales, t, type Locale, type RouteKey } from '../i18n';
+import { absolute, alternates, locales, siteRoot, t, type Locale, type RouteKey } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -29,20 +29,19 @@ const {
 } = Astro.props;
 
 const dict = t(locale);
-const canonical = new URL(Astro.url.pathname, site.url).href;
-const links = alternates(routeKey, slug).map((a) => ({
-  ...a,
-  href: new URL(a.href, site.url).href,
-}));
-const ogImage = image ? new URL(image, site.url).href : undefined;
+const canonical = absolute(Astro.url.pathname);
+const links = alternates(routeKey, slug).map((a) => ({ ...a, href: absolute(a.href) }));
+const ogImage = image ? absolute(image) : undefined;
 const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+
+const root = siteRoot();
 
 const graph = [
   {
     '@type': 'Organization',
-    '@id': `${site.url}/#organization`,
+    '@id': `${root}#organization`,
     name: site.name,
-    url: site.url,
+    url: root,
     email: site.email,
     telephone: site.phone,
     address: {
@@ -55,11 +54,11 @@ const graph = [
   },
   {
     '@type': 'WebSite',
-    '@id': `${site.url}/#website`,
-    url: site.url,
+    '@id': `${root}#website`,
+    url: root,
     name: site.name,
     inLanguage: dict.meta.locale,
-    publisher: { '@id': `${site.url}/#organization` },
+    publisher: { '@id': `${root}#organization` },
   },
   ...schema,
 ];

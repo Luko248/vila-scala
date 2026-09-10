@@ -52,6 +52,22 @@ export function withBase(url: string): string {
 }
 
 /**
+ * Absolute URL for a root-relative path, resolved against the origin this
+ * build is actually being deployed to. Never hard-code the production
+ * domain: a project page lives on github.io, and canonicals, hreflang,
+ * og:image and JSON-LD @ids all have to agree with wherever the page is
+ * really served from.
+ */
+export function absolute(url: string): string {
+  return new URL(url, import.meta.env.SITE || 'https://www.vila-scala.cz').href;
+}
+
+/** Absolute URL of the site root, base path included. Ends with a slash. */
+export function siteRoot(): string {
+  return absolute(withBase('/'));
+}
+
+/**
  * Build a root-relative, locale-aware path. Czech is the default locale and
  * is served without a prefix; English lives under /en/.
  */

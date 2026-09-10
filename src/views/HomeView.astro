@@ -24,7 +24,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 import { site } from '../data/site';
 import { units } from '../data/units';
-import { path, t, withBase, type Locale } from '../i18n';
+import { path, t, withBase, siteRoot, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -50,7 +50,7 @@ const priced = units.filter((u) => typeof u.price === 'number');
 const schema = [
   {
     '@type': 'ApartmentComplex',
-    '@id': `${site.url}/#project`,
+    '@id': `${siteRoot()}#project`,
     name: site.name,
     description: c.seoDescription,
     numberOfAccommodationUnits: units.length,

@@ -14,7 +14,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 import { site } from '../data/site';
 import { units, type Unit } from '../data/units';
-import { fmt, path, t, tu, type Locale } from '../i18n';
+import { fmt, path, t, tu, siteRoot, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -68,7 +68,7 @@ const schema = [
       postalCode: site.postalCode,
       addressCountry: site.country,
     },
-    containedInPlace: { '@id': `${site.url}/#project` },
+    containedInPlace: { '@id': `${siteRoot()}#project` },
     ...(unit.price
       ? {
           offers: {

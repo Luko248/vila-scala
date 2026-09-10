@@ -10,7 +10,7 @@ import SectionHeading from '../components/SectionHeading.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 import { site } from '../data/site';
-import { t, withBase, type Locale } from '../i18n';
+import { t, withBase, siteRoot, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -23,7 +23,7 @@ const schema = [
   {
     '@type': 'RealEstateAgent',
     name: site.name,
-    url: site.url,
+    url: siteRoot(),
     email: site.email,
     telephone: site.phone,
     address: {

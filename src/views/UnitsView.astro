@@ -21,9 +21,8 @@ import UnitIndex from '../components/UnitIndex.astro';
 import UnitsTable from '../components/UnitsTable.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-import { site } from '../data/site';
 import { units } from '../data/units';
-import { path, t, withBase, type Locale } from '../i18n';
+import { path, t, withBase, absolute, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -58,7 +57,7 @@ const schema = [
     itemListElement: units.map((u, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      url: new URL(path('unit', locale, u.slug), site.url).href,
+      url: absolute(path('unit', locale, u.slug)),
       name: `${dict.units.labelUnit} ${u.number} — ${u.layout}`,
     })),
   },

@@ -1,6 +1,5 @@
 ---
-import { site } from '../data/site';
-import { path, t, type Locale, type RouteKey } from '../i18n';
+import { absolute, path, t, type Locale, type RouteKey } from '../i18n';
 
 interface Props {
   locale: Locale;
@@ -46,7 +45,7 @@ export const schemaFor = () => null;
         '@type': 'ListItem',
         position: i + 1,
         name: c.label,
-        item: new URL(c.href, site.url).href,
+        item: absolute(c.href),
       })),
       { '@type': 'ListItem', position: crumbs.length + 1, name: current },
     ],
