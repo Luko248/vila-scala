@@ -103,16 +103,22 @@ For static files under `public/`, wrap the URL in `withBase()`.
 
 ## Deployment
 
-Pushing to `main` runs `.github/workflows/deploy.yml`: Bun install → type-check
-→ build → publish to GitHub Pages. Pull requests run `ci.yml` (type-check and
-build only).
+Pushing to `main` runs `.github/workflows/static.yml`: Bun install →
+type-check → build → publish to GitHub Pages. It can also be triggered by
+hand from the Actions tab.
 
 **One-time setup:** Settings → Pages → *Source: GitHub Actions*.
 
 The build reads `SITE` and `BASE` from the environment, which the workflow
-fills from `actions/configure-pages`. That means the same source deploys
-correctly both to a custom domain and to `https://<user>.github.io/<repo>/`
-without editing anything.
+fills from `actions/configure-pages`. That is what makes one source tree
+deploy correctly both to the project page
+(`https://luko248.github.io/vila-scala/`, base `/vila-scala`) and to a custom
+domain (base `/`) without editing anything.
+
+Never hard-code an absolute URL in a template: use `absolute()` or
+`siteRoot()` from `src/i18n`, which resolve against whichever origin the
+build is actually targeting. Canonicals, hreflang, `og:image`, robots and
+every JSON-LD `@id` go through them.
 
 **Custom domain:** add `public/CNAME` containing `www.vila-scala.cz`, then set
 the domain under Settings → Pages. `BASE` then resolves to `/` on its own.
