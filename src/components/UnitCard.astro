@@ -39,6 +39,7 @@ const numberFmt = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB');
       alt={`${heading} — ${unitCopy.title}`}
       widths={[400, 700, 1000]}
       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 92vw"
+      quality={62}
       loading={eager ? 'eager' : 'lazy'}
       decoding={eager ? 'sync' : 'async'}
       class:list={[

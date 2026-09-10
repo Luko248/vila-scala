@@ -58,14 +58,22 @@ const rows = units.map((u, i) => ({
             <p class="mt-2 max-w-lg text-sm text-muted">{title}</p>
           </div>
 
+          <!--
+            Every thumbnail is lazy. The first two were eager on the theory that
+            the opening rows sit near the fold; they do not — this is a
+            full-width vertical list and row one starts ~5200px down on a phone,
+            so eager only bought two requests competing with the hero for the
+            LCP window.
+          -->
           <span class="unit-thumb order-first block overflow-hidden bg-surface lg:order-3">
             <Image
               src={unit.hero}
               alt=""
               widths={[320, 560, 800]}
               sizes="(min-width: 1024px) 11rem, 92vw"
-              loading={i < 2 ? 'eager' : 'lazy'}
+              loading="lazy"
               decoding="async"
+              quality={62}
               class:list={[
                 'aspect-[16/10] w-full object-cover',
                 unit.status === 'sold' && 'saturate-[0.5]',
