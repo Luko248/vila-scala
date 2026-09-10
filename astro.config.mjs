@@ -18,7 +18,12 @@ export default defineConfig({
   base: BASE,
   trailingSlash: 'always',
   build: { format: 'directory', inlineStylesheets: 'auto' },
-  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
+  /*
+   * Opt-in rather than prefetchAll: prefetching every link on the page cost
+   * two long tasks inside the TBT window for links nobody follows. The nav
+   * and the primary calls to action carry `data-astro-prefetch` instead.
+   */
+  prefetch: { defaultStrategy: 'hover' },
   i18n: {
     locales: LOCALES,
     defaultLocale: DEFAULT_LOCALE,

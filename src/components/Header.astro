@@ -37,8 +37,8 @@ const items = NAV_ORDER.map((key) => ({
       <Image
         src={logo}
         alt={dict.meta.siteName}
-        widths={[180, 360]}
-        sizes="180px"
+        widths={[110, 220, 330]}
+        sizes="110px"
         loading="eager"
         class="logo h-8 w-auto sm:h-9"
       />
@@ -51,6 +51,7 @@ const items = NAV_ORDER.map((key) => ({
             <li>
               <a
                 href={item.href}
+                data-astro-prefetch
                 aria-current={item.current ? 'page' : undefined}
                 class:list={[
                   'relative flex h-11 items-center rounded-full px-3.5 text-[0.9375rem] transition-colors duration-200',
@@ -78,6 +79,7 @@ const items = NAV_ORDER.map((key) => ({
       <ThemeToggle locale={locale} />
       <a
         href={path('contact', locale)}
+        data-astro-prefetch
         class="hidden h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90 lg:inline-flex"
       >
         {dict.cta.contact}
@@ -127,6 +129,7 @@ const items = NAV_ORDER.map((key) => ({
             <li>
               <a
                 href={item.href}
+                data-astro-prefetch
                 aria-current={item.current ? 'page' : undefined}
                 class:list={[
                   'flex min-h-14 items-center border-b border-line/60 font-display text-2xl transition-colors duration-200',
