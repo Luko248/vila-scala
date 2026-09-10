@@ -242,16 +242,19 @@
     background-size: 100% 1px;
   }
 
-  /* Scroll reveal — dial: motion 3/10. Subtle, and never load-bearing. */
+  /*
+    Scroll reveal — dial: motion 3/10. Subtle, and never load-bearing.
+
+    Deliberately transform-only. Fading text from opacity 0 walks it through
+    states below 4.5:1, so for the length of the transition the copy is not
+    readable to anyone who needs that contrast — and it makes the contrast
+    audit flaky besides. A rise reads the same and stays legible throughout.
+  */
   .reveal {
-    opacity: 0;
     transform: translateY(14px);
-    transition:
-      opacity 0.7s var(--ease-editorial),
-      transform 0.7s var(--ease-editorial);
+    transition: transform 0.7s var(--ease-editorial);
   }
   .reveal[data-shown='true'] {
-    opacity: 1;
     transform: none;
   }
 
@@ -296,7 +299,6 @@
   }
   .reveal,
   .reveal-line > * {
-    opacity: 1;
     transform: none;
     transition: none;
   }
@@ -307,10 +309,9 @@
   }
 }
 
-/* No JS? Never leave content invisible. */
+/* No JS? Never leave content shifted out of place. */
 .no-js .reveal,
 .no-js .reveal-line > * {
-  opacity: 1;
   transform: none;
 }
 

@@ -87,18 +87,13 @@ const rows = units.map((u, i) => ({
 
 <style>
   @media (min-width: 1024px) {
-    /* Hovering one row dims the rest, so attention lands where the cursor is.
-       Focus behaves the same way, so keyboard users get the same signal. */
-    .unit-index:hover .unit-row,
-    .unit-index:focus-within .unit-row {
-      opacity: 0.42;
-      transition: opacity 0.45s var(--ease-editorial);
-    }
-    .unit-index .unit-row:hover,
-    .unit-index .unit-row:focus-visible {
-      opacity: 1;
-    }
-
+    /*
+      Dimming the other rows on hover was the original idea, but it dropped
+      their body text to 2.7:1 and the supporting line to 1.9:1 — unreadable
+      for the length of every hover, and no dim level keeps the muted line
+      above 4.5:1. The photograph and the drawn underline carry the hover
+      state instead.
+    */
     .unit-thumb {
       height: 7rem;
       opacity: 0;
