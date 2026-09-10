@@ -1,0 +1,40 @@
+---
+import Button from '../components/Button.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { NAV_ORDER, path, t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const c = dict.notFound;
+---
+
+<BaseLayout
+  locale={locale}
+  routeKey="home"
+  title={c.seoTitle}
+  description={c.body}
+  noindex
+>
+  <div class="container-page flex min-h-[60svh] flex-col justify-center py-24">
+    <p class="font-display text-7xl text-accent-text sm:text-8xl">404</p>
+    <h1 class="mt-6 text-4xl sm:text-5xl">{c.title}</h1>
+    <p class="mt-5 max-w-xl text-lg text-muted">{c.body}</p>
+
+    <nav aria-label={dict.a11y.mainNav} class="mt-10">
+      <ul class="flex flex-wrap gap-3">
+        {
+          NAV_ORDER.map((key) => (
+            <li>
+              <Button href={path(key, locale)} variant={key === 'home' ? 'primary' : 'secondary'}>
+                {dict.nav[key]}
+              </Button>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</BaseLayout>

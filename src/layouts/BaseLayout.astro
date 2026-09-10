@@ -1,0 +1,101 @@
+---
+import '../styles/global.css';
+
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Seo from '../components/Seo.astro';
+import { t, withBase, type Locale, type RouteKey } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+  slug?: string;
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  schema?: unknown[];
+  noindex?: boolean;
+  /** Page opens with a full-bleed dark hero the header should sit over. */
+  overHero?: boolean;
+}
+
+const { locale, routeKey, slug, overHero = false, ...seo } = Astro.props;
+const dict = t(locale);
+---
+
+<!doctype html>
+<html lang={dict.meta.locale} class="no-js" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbf9f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131110" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href={withBase("/favicon.ico")} sizes="32x32" />
+    <link rel="icon" href={withBase("/icon.svg")} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
+    <link rel="manifest" href={withBase("/site.webmanifest")} />
+    <link rel="sitemap" href={withBase("/sitemap-index.xml")} />
+
+    <Seo locale={locale} routeKey={routeKey} slug={slug} {...seo} />
+
+    <!--
+      Resolve the theme before first paint so there is no flash, and drop the
+      no-js class so progressive-enhancement styles switch on.
+    -->
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        root.classList.remove('no-js');
+        let stored = null;
+        try {
+          stored = localStorage.getItem('vs-theme');
+        } catch {}
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        root.dataset.theme = stored === 'light' || stored === 'dark' ? stored : system;
+      })();
+    </script>
+  </head>
+
+  <body id="top">
+    <a
+      href="#main"
+      class="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-100 focus-visible:rounded-full focus-visible:bg-accent focus-visible:px-5 focus-visible:py-3 focus-visible:text-sm focus-visible:font-medium focus-visible:text-accent-contrast"
+    >
+      {dict.a11y.skipToContent}
+    </a>
+
+    <Header locale={locale} routeKey={routeKey} slug={slug} overHero={overHero} />
+
+    <!--
+      On hero pages the first section slides up under the sticky header so the
+      bar floats over the artwork; the header still occupies its own space on
+      every other page.
+    -->
+    <main
+      id="main"
+      tabindex="-1"
+      class="focus:outline-none"
+      style={overHero ? 'margin-top: calc(var(--header-h) * -1)' : undefined}
+    >
+      <slot />
+    </main>
+
+    <Footer locale={locale} />
+
+    <script>
+      import '../scripts/app';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --header-h: 4.5rem;
+  }
+  @media (min-width: 640px) {
+    :root {
+      --header-h: 5rem;
+    }
+  }
+</style>

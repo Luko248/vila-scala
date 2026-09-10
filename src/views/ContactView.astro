@@ -1,0 +1,147 @@
+---
+import exteriorEvening from '../assets/images/exterior-evening.jpg';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Button from '../components/Button.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import { site } from '../data/site';
+import { t, withBase, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const c = dict.contact;
+
+const schema = [
+  {
+    '@type': 'RealEstateAgent',
+    name: site.name,
+    url: site.url,
+    email: site.email,
+    telephone: site.phone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: site.street,
+      addressLocality: `${site.city}-${site.district}`,
+      postalCode: site.postalCode,
+      addressCountry: site.country,
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
+    areaServed: site.city,
+  },
+];
+
+const details = [
+  {
+    title: c.addressTitle,
+    lines: [site.street, `${site.district}, ${site.postalCode} ${site.city}`],
+    href: site.mapsUrl,
+    hrefLabel: c.mapCta,
+    external: true,
+  },
+  {
+    title: c.phoneTitle,
+    lines: [site.phoneDisplay],
+    href: `tel:${site.phone}`,
+    hrefLabel: dict.cta.call,
+    external: false,
+  },
+  {
+    title: c.emailTitle,
+    lines: [site.email],
+    href: `mailto:${site.email}`,
+    hrefLabel: dict.cta.email,
+    external: false,
+  },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  routeKey="contact"
+  title={c.seoTitle}
+  description={c.seoDescription}
+  image={withBase("/og/home.jpg")}
+  schema={schema}
+  overHero
+>
+  <Hero
+    image={exteriorEvening}
+    alt={dict.home.heroImageAlt}
+    title={c.title}
+    subtitle={c.lead}
+  />
+
+  <Breadcrumbs locale={locale} trail={[]} current={dict.nav.contact} />
+
+  <Section class="pt-10 sm:pt-14" labelledby="contact-details-title">
+    <h2 id="contact-details-title" class="sr-only">{dict.nav.contact}</h2>
+
+    <div class="grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
+      <div>
+        <ul class="grid gap-8">
+          {
+            details.map((d, i) => (
+              <li class="reveal border-t border-line-strong pt-5" data-reveal-delay={i * 70}>
+                <h3 class="font-sans text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+                  {d.title}
+                </h3>
+                <p class="mt-3 font-display text-2xl">
+                  {d.lines.map((line, li) => (
+                    <>
+                      {li > 0 && <br />}
+                      {line}
+                    </>
+                  ))}
+                </p>
+                <a
+                  href={d.href}
+                  target={d.external ? '_blank' : undefined}
+                  rel={d.external ? 'noopener noreferrer' : undefined}
+                  class="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent-text underline-offset-4 hover:underline"
+                >
+                  {d.hrefLabel}
+                  {d.external && <span class="sr-only"> ({dict.a11y.newWindow})</span>}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="reveal mt-12 rounded-card border border-line bg-surface p-6 sm:p-8">
+          <h3 class="text-xl">{c.tourTitle}</h3>
+          <p class="mt-2 text-muted">{c.tourBody}</p>
+          <Button href={site.virtualTourUrl} external class="mt-6">{c.tourCta}</Button>
+        </div>
+      </div>
+
+      <ContactForm locale={locale} />
+    </div>
+  </Section>
+
+  <Section tone="surface" labelledby="map-title">
+    <SectionHeading id="map-title" index="02" eyebrow={dict.nav.contact} title={c.mapTitle} />
+    <div class="reveal mt-10 overflow-hidden rounded-card border border-line">
+      <!--
+        Loaded only when the visitor scrolls to it, and without cookies until
+        then — an embed is not worth 700 kB on first paint.
+      -->
+      <iframe
+        title={c.mapAlt}
+        src={`https://www.openstreetmap.org/export/embed.html?bbox=${site.geo.lng - 0.006}%2C${site.geo.lat - 0.003}%2C${site.geo.lng + 0.006}%2C${site.geo.lat + 0.003}&layer=mapnik&marker=${site.geo.lat}%2C${site.geo.lng}`}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        class="block h-[22rem] w-full border-0 sm:h-[26rem]"></iframe>
+    </div>
+    <div class="reveal mt-6">
+      <Button href={site.mapsUrl} variant="secondary" external>{c.mapCta}</Button>
+    </div>
+  </Section>
+</BaseLayout>

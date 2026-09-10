@@ -1,0 +1,12 @@
+---
+import type { GetStaticPaths } from 'astro';
+import UnitView from '../../views/UnitView.astro';
+import { units } from '../../data/units';
+
+export const getStaticPaths = (() =>
+  units.map((unit) => ({ params: { unit: unit.slug }, props: { unit } }))) satisfies GetStaticPaths;
+
+const { unit } = Astro.props;
+---
+
+<UnitView locale="cs" unit={unit} />

@@ -1,0 +1,156 @@
+---
+import { site } from '../data/site';
+import { units } from '../data/units';
+import { t, tu, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const copy = tu(locale);
+const c = dict.contact;
+
+const fieldBase =
+  'mt-2 block min-h-12 w-full rounded-card border border-line-strong bg-elevated px-4 py-3 text-base text-text transition-colors duration-200 placeholder:text-muted/70 hover:border-accent/60 aria-[invalid=true]:border-[color:var(--color-status-soon)]';
+---
+
+<div class="reveal">
+  <h2 class="text-3xl sm:text-4xl">{c.formTitle}</h2>
+  <p class="mt-3 text-muted">{c.formIntro}</p>
+
+  <form
+    data-contact-form
+    data-to={site.email}
+    data-subject={c.formSubject}
+    data-label-name={c.formName}
+    data-label-email={c.formEmail}
+    data-label-phone={c.formPhone}
+    data-label-unit={c.formUnit}
+    data-err-name={c.formErrName}
+    data-err-email={c.formErrEmail}
+    data-err-message={c.formErrMessage}
+    action={`mailto:${site.email}`}
+    method="post"
+    enctype="text/plain"
+    novalidate
+    class="mt-8 grid gap-6"
+  >
+    <!-- Error summary: announced, focusable, and links to the offending field. -->
+    <div
+      data-form-errors
+      hidden
+      tabindex="-1"
+      role="alert"
+      class="rounded-card border border-[color:var(--color-status-soon)] bg-surface p-4"
+    >
+      <p class="font-medium">{c.formErrSummary}</p>
+      <ul data-form-errors-list class="mt-2 grid gap-1 text-sm">
+        <li></li>
+      </ul>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2">
+      <p>
+        <label for="field-name" class="text-sm font-medium">
+          {c.formName} <span class="text-accent-text" aria-hidden="true">*</span>
+          <span class="sr-only">({c.formRequired})</span>
+        </label>
+        <input
+          id="field-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          aria-describedby="err-name"
+          class={fieldBase}
+        />
+        <span id="err-name" data-error-for="name" hidden class="mt-1.5 block text-sm text-[color:var(--color-status-soon)]"></span>
+      </p>
+
+      <p>
+        <label for="field-email" class="text-sm font-medium">
+          {c.formEmail} <span class="text-accent-text" aria-hidden="true">*</span>
+          <span class="sr-only">({c.formRequired})</span>
+        </label>
+        <input
+          id="field-email"
+          name="email"
+          type="email"
+          inputmode="email"
+          autocomplete="email"
+          required
+          aria-describedby="err-email"
+          class={fieldBase}
+        />
+        <span id="err-email" data-error-for="email" hidden class="mt-1.5 block text-sm text-[color:var(--color-status-soon)]"></span>
+      </p>
+
+      <p>
+        <label for="field-phone" class="text-sm font-medium">{c.formPhone}</label>
+        <input
+          id="field-phone"
+          name="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel"
+          aria-describedby="hint-phone"
+          class={fieldBase}
+        />
+        <span id="hint-phone" class="mt-1.5 block text-sm text-muted">{c.formPhoneHint}</span>
+      </p>
+
+      <p>
+        <label for="field-unit" class="text-sm font-medium">{c.formUnit}</label>
+        <select id="field-unit" name="unit" class={fieldBase}>
+          <option value="">{c.formUnitAny}</option>
+          {
+            units
+              .filter((u) => u.status !== 'sold')
+              .map((u) => (
+                <option value={`${dict.units.labelUnit} ${u.number}`}>
+                  {dict.units.labelUnit} {u.number} — {u.layout}
+                </option>
+              ))
+          }
+        </select>
+      </p>
+    </div>
+
+    <p>
+      <label for="field-message" class="text-sm font-medium">
+        {c.formMessage} <span class="text-accent-text" aria-hidden="true">*</span>
+        <span class="sr-only">({c.formRequired})</span>
+      </label>
+      <textarea
+        id="field-message"
+        name="message"
+        rows="6"
+        required
+        aria-describedby="err-message"
+        class={`${fieldBase} resize-y`}></textarea>
+      <span id="err-message" data-error-for="message" hidden class="mt-1.5 block text-sm text-[color:var(--color-status-soon)]"></span>
+    </p>
+
+    <div class="flex flex-wrap items-center gap-4">
+      <button
+        type="submit"
+        class="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full bg-accent px-7 text-[0.9375rem] font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90"
+      >
+        {c.formSubmit}
+      </button>
+      <a
+        href={`mailto:${site.email}`}
+        class="inline-flex min-h-12 items-center text-sm text-muted underline-offset-4 hover:text-text hover:underline"
+      >
+        {site.email}
+      </a>
+    </div>
+
+    <p data-form-status hidden role="status" class="rounded-card border border-line bg-surface p-4 text-sm">
+      {c.formSuccess}
+    </p>
+  </form>
+
+  <p class="mt-8 border-t border-line pt-6 text-sm text-muted">{copy.sharedNote}</p>
+</div>

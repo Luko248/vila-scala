@@ -1,0 +1,99 @@
+---
+import { site } from '../data/site';
+import { alternates, locales, t, type Locale, type RouteKey } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+  slug?: string;
+  title: string;
+  description: string;
+  /** Absolute or root-relative URL of the social preview image. */
+  image?: string;
+  imageAlt?: string;
+  /** JSON-LD graph nodes to embed. */
+  schema?: unknown[];
+  noindex?: boolean;
+}
+
+const {
+  locale,
+  routeKey,
+  slug,
+  title,
+  description,
+  image,
+  imageAlt,
+  schema = [],
+  noindex = false,
+} = Astro.props;
+
+const dict = t(locale);
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const links = alternates(routeKey, slug).map((a) => ({
+  ...a,
+  href: new URL(a.href, site.url).href,
+}));
+const ogImage = image ? new URL(image, site.url).href : undefined;
+const fullTitle = title.includes(site.name) ? title : `${title} | ${site.name}`;
+
+const graph = [
+  {
+    '@type': 'Organization',
+    '@id': `${site.url}/#organization`,
+    name: site.name,
+    url: site.url,
+    email: site.email,
+    telephone: site.phone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: site.street,
+      addressLocality: `${site.city}-${site.district}`,
+      postalCode: site.postalCode,
+      addressCountry: site.country,
+    },
+  },
+  {
+    '@type': 'WebSite',
+    '@id': `${site.url}/#website`,
+    url: site.url,
+    name: site.name,
+    inLanguage: dict.meta.locale,
+    publisher: { '@id': `${site.url}/#organization` },
+  },
+  ...schema,
+];
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+{links.map((a) => <link rel="alternate" hreflang={a.hreflang} href={a.href} />)}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={locale === 'cs' ? 'cs_CZ' : 'en_GB'} />
+{
+  locales
+    .filter((l) => l !== locale)
+    .map((l) => <meta property="og:locale:alternate" content={l === 'cs' ? 'cs_CZ' : 'en_GB'} />)
+}
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+{ogImage && <meta property="og:image:alt" content={imageAlt ?? title} />}
+
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}
+/>

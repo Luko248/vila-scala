@@ -1,0 +1,55 @@
+---
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'onDark';
+  external?: boolean;
+  download?: boolean;
+  class?: string;
+  ariaLabel?: string;
+}
+const {
+  href,
+  variant = 'primary',
+  external = false,
+  download = false,
+  class: className = '',
+  ariaLabel,
+} = Astro.props;
+
+const styles = {
+  primary: 'bg-accent text-accent-contrast hover:opacity-90',
+  secondary: 'border border-line-strong text-text hover:bg-surface',
+  ghost: 'text-accent-text hover:bg-surface',
+  /* Outlined, for use over photography — never themed, always light-on-dark. */
+  onDark: 'border border-[#f6f2ec]/45 text-[#f6f2ec] hover:bg-[#f6f2ec]/12',
+};
+---
+
+<a
+  href={href}
+  aria-label={ariaLabel}
+  download={download || undefined}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+  class:list={[
+    'inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-[0.9375rem] font-medium transition-all duration-200',
+    styles[variant],
+    className,
+  ]}
+>
+  <slot />
+  {
+    external && (
+      <svg class="size-4 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 4h6v6M20 4l-8.5 8.5M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />
+      </svg>
+    )
+  }
+  {
+    download && (
+      <svg class="size-4 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+      </svg>
+    )
+  }
+</a>

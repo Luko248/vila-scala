@@ -1,0 +1,223 @@
+---
+import { Image } from 'astro:assets';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Button from '../components/Button.astro';
+import Gallery from '../components/Gallery.astro';
+import Hero from '../components/Hero.astro';
+import Lightbox from '../components/Lightbox.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import UnitCard from '../components/UnitCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import { site } from '../data/site';
+import { units, type Unit } from '../data/units';
+import { fmt, path, t, tu, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  unit: Unit;
+}
+const { locale, unit } = Astro.props;
+const dict = t(locale);
+const copy = tu(locale);
+const c = copy[unit.slug as '1039-1'];
+
+const nf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB');
+const cf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+  style: 'currency',
+  currency: 'CZK',
+  maximumFractionDigits: 0,
+});
+
+const heading = `${dict.units.labelUnit} ${unit.number}`;
+const priceLabel = unit.price
+  ? cf.format(unit.price)
+  : unit.status === 'soon'
+    ? dict.status.soon
+    : dict.units.priceOnRequest;
+
+const specs = [
+  { label: dict.units.layout, value: unit.layout },
+  { label: dict.units.floor, value: unit.floorLabel[locale] },
+  { label: dict.units.floorArea, value: `${nf.format(unit.areas.floor)} m²` },
+  { label: dict.units.usableArea, value: `${nf.format(unit.areas.usable)} m²` },
+  { label: dict.units.totalUsableArea, value: `${nf.format(unit.areas.totalUsable)} m²` },
+  ...(unit.studio ? [{ label: dict.units.designStudio, value: unit.studio }] : []),
+];
+
+const others = units.filter((u) => u.slug !== unit.slug).slice(0, 3);
+
+const seoTitle = `${heading}, ${unit.layout} — ${site.name}`;
+const seoDescription = `${c.lead} ${dict.units.totalUsableArea}: ${nf.format(unit.areas.totalUsable)} m². ${unit.price ? `${dict.units.price}: ${cf.format(unit.price)}.` : ''}`.trim();
+
+const schema = [
+  {
+    '@type': 'Apartment',
+    name: `${heading} — ${unit.layout}`,
+    description: c.lead,
+    numberOfRooms: Number(unit.layout.replace(/\D/g, '')) || undefined,
+    floorSize: { '@type': 'QuantitativeValue', value: unit.areas.floor, unitCode: 'MTK' },
+    floorLevel: unit.floorLabel.en,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: site.street,
+      addressLocality: `${site.city}-${site.district}`,
+      postalCode: site.postalCode,
+      addressCountry: site.country,
+    },
+    containedInPlace: { '@id': `${site.url}/#project` },
+    ...(unit.price
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: unit.price,
+            priceCurrency: 'CZK',
+            availability:
+              unit.status === 'available'
+                ? 'https://schema.org/InStock'
+                : unit.status === 'soon'
+                  ? 'https://schema.org/PreOrder'
+                  : 'https://schema.org/SoldOut',
+          },
+        }
+      : {}),
+  },
+];
+
+const galleryItems = unit.gallery.map((src, i) => ({
+  src,
+  alt: `${heading} — ${c.title} (${i + 1}/${unit.gallery.length})`,
+}));
+---
+
+<BaseLayout
+  locale={locale}
+  routeKey="unit"
+  slug={unit.slug}
+  title={seoTitle}
+  description={seoDescription}
+  schema={schema}
+  overHero
+>
+  <Hero image={unit.hero} alt={`${heading} — ${c.title}`} eyebrow={heading} title={c.title} />
+
+  <Breadcrumbs locale={locale} trail={[{ key: 'units' }]} current={`${heading}`} />
+
+  <Section class="pt-10 sm:pt-14" labelledby="unit-overview">
+    <h2 id="unit-overview" class="sr-only">{dict.units.parameters}</h2>
+
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,4fr)] lg:gap-16">
+      <div>
+        <div class="reveal flex flex-wrap items-center gap-4">
+          <StatusBadge locale={locale} status={unit.status} />
+          <p class="font-display text-3xl text-accent-text sm:text-4xl">{priceLabel}</p>
+        </div>
+
+        <p class="reveal prose-vs mt-7 text-lg text-muted">{c.lead}</p>
+
+        <!-- Outdoor spaces -->
+        <h3 class="reveal mt-12 text-2xl">{dict.units.outdoor}</h3>
+        <ul class="reveal mt-5 grid gap-5">
+          {
+            unit.outdoor.map((o) => (
+              <li class="border-t border-line pt-4">
+                <p class="flex flex-wrap items-baseline justify-between gap-2">
+                  <span class="font-medium">{copy.outdoor[o.key as 'terrace']}</span>
+                  <span class="tabular-nums text-accent-text">{nf.format(o.area)} m²</span>
+                </p>
+                {c.outdoorNotes[o.key as keyof typeof c.outdoorNotes] && (
+                  <p class="mt-1.5 text-sm text-muted">
+                    {c.outdoorNotes[o.key as keyof typeof c.outdoorNotes]}
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="reveal prose-vs mt-10 text-muted">
+          <p>{c.closing}</p>
+          <p>{copy.visualisationNote}</p>
+          <p><strong class="text-text">{copy.sharedNote}</strong></p>
+        </div>
+      </div>
+
+      <!-- Spec card ---------------------------------------------------- -->
+      <aside class="reveal lg:sticky lg:top-[calc(var(--header-h)+1.5rem)] lg:self-start">
+        <div class="rounded-card border border-line bg-elevated p-6 shadow-[var(--shadow-raise)] sm:p-8">
+          <h3 class="text-xl">{dict.units.parameters}</h3>
+          <dl class="mt-5 grid gap-3 text-sm">
+            {
+              specs.map((s) => (
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line pb-3 last:border-0 last:pb-0">
+                  <dt class="text-muted">{s.label}</dt>
+                  <dd class="text-right font-medium">{s.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+
+          <div class="mt-7 grid gap-3">
+            <Button href={path('contact', locale)} class="w-full">{dict.cta.contactUs}</Button>
+            <Button href={unit.pdf} variant="secondary" download class="w-full">
+              {dict.cta.downloadPdf}
+            </Button>
+            <Button href={site.virtualTourUrl} variant="ghost" external class="w-full">
+              {dict.cta.virtualTour}
+            </Button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </Section>
+
+  <!-- Floor plan --------------------------------------------------------- -->
+  <Section tone="surface" labelledby="unit-plan-title">
+    <SectionHeading id="unit-plan-title" index="01" eyebrow={heading} title={dict.units.floorplan} />
+    <figure class="reveal mt-10">
+      <a href={unit.pdf} download class="block overflow-hidden rounded-card bg-bg p-3 sm:p-6">
+        <Image
+          src={unit.plan}
+          alt={fmt(dict.units.floorplanAlt, { unit: unit.number })}
+          widths={[600, 1000, 1500, 1920]}
+          sizes="(min-width: 1024px) 70vw, 92vw"
+          loading="lazy"
+          class="mx-auto w-full max-w-4xl"
+        />
+      </a>
+      <figcaption class="mt-4 text-sm text-muted">
+        {fmt(dict.units.floorplanAlt, { unit: unit.number })} —
+        <a class="text-accent-text underline-offset-4 hover:underline" href={unit.pdf} download>
+          {dict.cta.downloadPdf}
+        </a>
+      </figcaption>
+    </figure>
+  </Section>
+
+  <!-- Gallery ------------------------------------------------------------ -->
+  <Section labelledby="unit-gallery-title">
+    <SectionHeading
+      id="unit-gallery-title"
+      index="02"
+      eyebrow={heading}
+      title={`${dict.units.gallery} ${fmt(dict.units.ofUnit, { unit: unit.number })}`}
+    />
+    <Gallery locale={locale} items={galleryItems} class="mt-12" />
+  </Section>
+
+  <!-- Other units -------------------------------------------------------- -->
+  <Section tone="surface" labelledby="other-units-title">
+    <SectionHeading id="other-units-title" index="03" eyebrow={dict.nav.units} title={dict.unitsPage.tableTitle} />
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {others.map((u, i) => <UnitCard locale={locale} unit={u} index={i} />)}
+    </div>
+    <div class="reveal mt-12">
+      <Button href={path('units', locale)} variant="secondary">{dict.cta.backToUnits}</Button>
+    </div>
+  </Section>
+
+  <Lightbox locale={locale} />
+</BaseLayout>

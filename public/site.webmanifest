@@ -1,0 +1,14 @@
+{
+  "name": "Vila SCALA",
+  "short_name": "Vila SCALA",
+  "description": "Nadstandardní byty ve viladomu na Veslařské ulici v Brně-Jundrově.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#131110",
+  "theme_color": "#131110",
+  "lang": "cs-CZ",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

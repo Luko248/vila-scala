@@ -1,0 +1,106 @@
+---
+import { Image } from 'astro:assets';
+
+import basementPlan from '../assets/floorplans/basement.jpg';
+import corridorGarage from '../assets/images/corridor-garage.jpg';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Button from '../components/Button.astro';
+import DownloadCard from '../components/DownloadCard.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import { units } from '../data/units';
+import { path, t, withBase, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const c = dict.documents;
+---
+
+<BaseLayout
+  locale={locale}
+  routeKey="documents"
+  title={c.seoTitle}
+  description={c.seoDescription}
+  image={withBase("/og/home.jpg")}
+  overHero
+>
+  <Hero
+    image={corridorGarage}
+    alt={locale === 'cs'
+      ? 'Chodba spojující garáž se vstupem do viladomu'
+      : 'Corridor linking the garage to the building entrance'}
+    title={c.title}
+    subtitle={c.lead}
+  />
+
+  <Breadcrumbs locale={locale} trail={[]} current={dict.nav.documents} />
+
+  <Section class="pt-10 sm:pt-14" labelledby="plans-title">
+    <SectionHeading id="plans-title" index="01" eyebrow={dict.nav.documents} title={c.floorplansTitle} />
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        units.map((u, i) => (
+          <li>
+            <DownloadCard
+              locale={locale}
+              href={u.pdf}
+              title={`${dict.units.labelUnit} ${u.number}`}
+              meta={`${u.layout} · ${u.floorLabel[locale]}`}
+              linkHref={path('unit', locale, u.slug)}
+              linkLabel={dict.cta.viewUnit}
+              index={i}
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <Section tone="surface" labelledby="certs-title">
+    <SectionHeading id="certs-title" index="02" eyebrow={dict.nav.documents} title={c.energyTitle} lead={c.energyBody} />
+    <ul class="mt-12 grid gap-4 sm:grid-cols-2">
+      <li>
+        <DownloadCard
+          locale={locale}
+          href={withBase("/docs/vila-scala-energeticky-prukaz.pdf")}
+          title={c.energyFile}
+          meta="PDF"
+        />
+      </li>
+      <li>
+        <DownloadCard
+          locale={locale}
+          href={withBase("/docs/vila-scala-standardy.pdf")}
+          title={c.standardsFile}
+          meta="PDF"
+          index={1}
+        />
+      </li>
+    </ul>
+  </Section>
+
+  <Section labelledby="basement-title">
+    <SectionHeading id="basement-title" index="03" eyebrow={dict.nav.documents} title={c.basementTitle} />
+    <figure class="reveal mt-10 overflow-hidden rounded-card border border-line bg-elevated p-3 sm:p-6">
+      <Image
+        src={basementPlan}
+        alt={c.basementAlt}
+        widths={[600, 1000, 1500]}
+        sizes="(min-width: 1024px) 70vw, 92vw"
+        loading="lazy"
+        class="mx-auto w-full max-w-4xl"
+      />
+      <figcaption class="mt-4 text-sm text-muted">{c.basementAlt}</figcaption>
+    </figure>
+    <div class="reveal mt-10">
+      <Button href={path('pricing', locale)} variant="secondary">{dict.cta.priceList}</Button>
+    </div>
+  </Section>
+</BaseLayout>

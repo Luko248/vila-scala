@@ -1,0 +1,103 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo.png';
+import { site } from '../data/site';
+import { NAV_ORDER, path, t, withBase, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const year = new Date().getFullYear();
+
+const downloads = [
+  { label: dict.documents.energyFile, href: withBase('/docs/vila-scala-energeticky-prukaz.pdf') },
+  { label: dict.documents.standardsFile, href: withBase('/docs/vila-scala-standardy.pdf') },
+];
+---
+
+<footer data-site-footer class="mt-24 border-t border-line bg-surface">
+  <div class="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
+    <div class="lg:col-span-1">
+      <Image src={logo} alt={dict.meta.siteName} widths={[180, 360]} sizes="180px" loading="lazy" class="logo h-9 w-auto" />
+      <p class="mt-5 max-w-xs text-sm text-muted">{dict.footer.about}</p>
+    </div>
+
+    <div>
+      <h2 class="font-sans text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+        {dict.footer.contactTitle}
+      </h2>
+      <address class="mt-3 grid text-sm not-italic">
+        <span class="py-1.5 text-muted">
+          {site.street}<br />{site.district}, {site.postalCode} {site.city}
+        </span>
+        <a class="inline-flex min-h-9 w-fit items-center text-text underline-offset-4 hover:text-accent-text hover:underline" href={`tel:${site.phone}`}>
+          {site.phoneDisplay}
+        </a>
+        <a class="inline-flex min-h-9 w-fit items-center text-text underline-offset-4 hover:text-accent-text hover:underline" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+      </address>
+    </div>
+
+    <nav aria-label={dict.a11y.footerNav}>
+      <h2 class="font-sans text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+        {dict.footer.navTitle}
+      </h2>
+      <ul class="mt-3 grid text-sm">
+        {
+          NAV_ORDER.map((key) => (
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center text-muted underline-offset-4 hover:text-text hover:underline"
+                href={path(key, locale)}
+              >
+                {dict.nav[key]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="font-sans text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+        {dict.footer.docsTitle}
+      </h2>
+      <ul class="mt-3 grid text-sm">
+        {
+          downloads.map((d) => (
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center gap-2 text-muted underline-offset-4 hover:text-text hover:underline"
+                href={d.href}
+                download
+              >
+                <svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+                <span>{d.label} <span class="sr-only">({dict.a11y.pdfFile})</span></span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-line">
+    <div class="container-page flex flex-wrap items-center justify-between gap-4 py-6 text-sm text-muted">
+      <p>© {site.foundingYear}–{year} {site.name}. {dict.footer.rights}</p>
+      <a class="inline-flex min-h-11 items-center underline-offset-4 hover:text-text hover:underline" href="#top">
+        {dict.footer.backToTop}
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  :global(:root[data-theme='dark']) .logo {
+    filter: brightness(0) invert(1);
+  }
+</style>

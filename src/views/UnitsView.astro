@@ -1,0 +1,125 @@
+---
+import exteriorDay from '../assets/images/exterior-day.jpg';
+import stoneLight2 from '../assets/images/stone-light-2.jpg';
+import garageLightwall1 from '../assets/images/garage-lightwall-1.jpg';
+import wine2 from '../assets/images/wine-cellar-2.jpg';
+import entranceNumber from '../assets/images/entrance-number.jpg';
+import entranceDoor from '../assets/images/entrance-door.jpg';
+import corridorGarage from '../assets/images/corridor-garage.jpg';
+import interiorKitchen from '../assets/images/interior-kitchen.jpg';
+import atticBath from '../assets/images/interior-attic-bath.jpg';
+import terrace1 from '../assets/images/terrace-1.jpg';
+
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Button from '../components/Button.astro';
+import Gallery from '../components/Gallery.astro';
+import Hero from '../components/Hero.astro';
+import Lightbox from '../components/Lightbox.astro';
+import Section from '../components/Section.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import UnitIndex from '../components/UnitIndex.astro';
+import UnitsTable from '../components/UnitsTable.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+import { site } from '../data/site';
+import { units } from '../data/units';
+import { path, t, withBase, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const c = dict.unitsPage;
+
+const cs = locale === 'cs';
+const galleryItems = [
+  { src: stoneLight2, alt: cs ? 'Prosvětlená kamenná stěna od Anewstyle ve společné chodbě' : 'Backlit stone wall by Anewstyle in the common corridor' },
+  { src: interiorKitchen, alt: cs ? 'Kuchyňský ostrůvek v travertinovém provedení' : 'Travertine kitchen island' },
+  { src: wine2, alt: cs ? 'Vinný regál zasazený do skalní stěny' : 'Wine racking set into the rock face' },
+  { src: terrace1, alt: cs ? 'Terasa s cortenovými truhlíky osázenými zelení' : 'Terrace with corten planters filled with greenery' },
+  { src: atticBath, alt: cs ? 'Koupelna v podkrovním bytě se střešními okny' : 'Bathroom in the attic apartment with roof windows' },
+  { src: garageLightwall1, alt: cs ? 'Garáž s designovým podsvíceným kamenným panelem' : 'Garage with a designer backlit stone panel' },
+  { src: corridorGarage, alt: cs ? 'Chodba spojující garáž se vstupem do domu' : 'Corridor linking the garage to the building entrance' },
+  { src: entranceDoor, alt: cs ? 'Vstupní dveře do bytové jednotky' : 'Entrance door to an apartment' },
+  { src: entranceNumber, alt: cs ? 'Vstup do domu s číslem 144 na Veslařské ulici' : 'Entrance to number 144 on Veslařská street' },
+];
+
+const floorplans = units.map((u) => ({
+  src: u.plan,
+  alt: `${dict.units.floorplan} — ${dict.units.labelUnit} ${u.number}, ${u.layout}`,
+}));
+
+const schema = [
+  {
+    '@type': 'ItemList',
+    name: c.title,
+    numberOfItems: units.length,
+    itemListElement: units.map((u, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: new URL(path('unit', locale, u.slug), site.url).href,
+      name: `${dict.units.labelUnit} ${u.number} — ${u.layout}`,
+    })),
+  },
+];
+---
+
+<BaseLayout
+  locale={locale}
+  routeKey="units"
+  title={c.seoTitle}
+  description={c.seoDescription}
+  image={withBase("/og/home.jpg")}
+  schema={schema}
+  overHero
+>
+  <Hero
+    image={exteriorDay}
+    alt={cs
+      ? 'Fasáda viladomu Vila SCALA s balkony a cortenovými truhlíky'
+      : 'The Vila SCALA facade with balconies and corten planters'}
+    title={c.title}
+    subtitle={c.lead}
+  />
+
+  <Breadcrumbs locale={locale} trail={[]} current={dict.nav.units} />
+
+  <Section labelledby="units-intro-title" class="pt-10 sm:pt-14">
+    <h2 id="units-intro-title" class="sr-only">{c.lead}</h2>
+    <div class="grid gap-x-12 gap-y-10 md:grid-cols-2">
+      {
+        c.introSections.map((s, i) => (
+          <article class="reveal border-t border-line-strong pt-7" data-reveal-delay={i * 80}>
+            <h3 class="text-2xl">{s.title}</h3>
+            <p class="mt-4 text-muted">{s.body}</p>
+          </article>
+        ))
+      }
+    </div>
+    <p class="reveal prose-vs mt-10 text-lg text-muted">{c.introClosing}</p>
+  </Section>
+
+  <Section tone="surface" labelledby="units-list-title">
+    <SectionHeading id="units-list-title" index="01" eyebrow={dict.nav.units} title={c.tableTitle} />
+
+    <UnitIndex locale={locale} class="mt-14" />
+
+    <UnitsTable locale={locale} class="mt-20" />
+  </Section>
+
+  <Section labelledby="floorplans-title">
+    <SectionHeading id="floorplans-title" index="02" eyebrow={dict.nav.documents} title={c.floorplansTitle} />
+    <Gallery locale={locale} items={floorplans} variant="grid" fit="contain" class="mt-12" />
+    <div class="reveal mt-10">
+      <Button href={path('documents', locale)} variant="secondary">{dict.cta.allDocuments}</Button>
+    </div>
+  </Section>
+
+  <Section tone="surface" labelledby="units-gallery-title">
+    <SectionHeading id="units-gallery-title" index="03" eyebrow={dict.meta.siteName} title={c.galleryTitle} />
+    <Gallery locale={locale} items={galleryItems} class="mt-12" />
+  </Section>
+
+  <Lightbox locale={locale} />
+</BaseLayout>

@@ -1,0 +1,197 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/brand/logo.png';
+import { NAV_ORDER, path, t, type Locale, type RouteKey } from '../i18n';
+import LocaleSwitch from './LocaleSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  locale: Locale;
+  routeKey: RouteKey;
+  slug?: string;
+  /** True when the page opens with a full-bleed dark hero behind the header. */
+  overHero?: boolean;
+}
+const { locale, routeKey, slug, overHero = false } = Astro.props;
+const dict = t(locale);
+
+const items = NAV_ORDER.map((key) => ({
+  key,
+  href: path(key, locale),
+  label: dict.nav[key],
+  current: key === routeKey || (key === 'units' && routeKey === 'unit'),
+}));
+---
+
+<header
+  data-site-header
+  data-over-hero={overHero ? 'true' : undefined}
+  class="site-header sticky top-0 z-50 border-b border-line/70 bg-bg/85 backdrop-blur-md transition-[background-color,border-color] duration-500 ease-[var(--ease-editorial)] supports-[backdrop-filter]:bg-bg/70"
+>
+  <div class="container-page flex h-[var(--header-h)] items-center justify-between gap-4">
+    <a
+      href={path('home', locale)}
+      class="flex min-h-11 shrink-0 items-center"
+      aria-label={dict.a11y.homeLink}
+    >
+      <Image
+        src={logo}
+        alt={dict.meta.siteName}
+        widths={[180, 360]}
+        sizes="180px"
+        loading="eager"
+        class="logo h-8 w-auto sm:h-9"
+      />
+    </a>
+
+    <nav aria-label={dict.a11y.mainNav} class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {
+          items.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={item.current ? 'page' : undefined}
+                class:list={[
+                  'relative flex h-11 items-center rounded-full px-3.5 text-[0.9375rem] transition-colors duration-200',
+                  item.current
+                    ? 'text-accent-text font-medium'
+                    : 'text-muted hover:bg-surface hover:text-text',
+                ]}
+              >
+                {item.label}
+                {item.current && (
+                  <span
+                    aria-hidden="true"
+                    class="absolute inset-x-3.5 bottom-1.5 h-px bg-accent"
+                  />
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <div class="hidden sm:block"><LocaleSwitch locale={locale} routeKey={routeKey} slug={slug} /></div>
+      <ThemeToggle locale={locale} />
+      <a
+        href={path('contact', locale)}
+        class="hidden h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90 lg:inline-flex"
+      >
+        {dict.cta.contact}
+      </a>
+
+      <button
+        type="button"
+        class="grid size-11 place-items-center rounded-full border border-line text-text lg:hidden"
+        aria-label={dict.a11y.openMenu}
+        aria-expanded="false"
+        aria-controls="site-menu"
+        data-menu-open
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile menu: a real dialog so Escape, focus trapping and inertness come for free. -->
+<dialog
+  id="site-menu"
+  class="site-menu m-0 h-full max-h-none w-full max-w-none bg-bg p-0 text-text backdrop:bg-black/70"
+  aria-label={dict.a11y.mainNav}
+>
+  <div class="flex h-full flex-col">
+    <div class="container-page flex h-[var(--header-h)] shrink-0 items-center justify-between border-b border-line">
+      <span class="font-display text-xl">{dict.meta.siteName}</span>
+      <button
+        type="button"
+        class="grid size-11 place-items-center rounded-full border border-line"
+        aria-label={dict.a11y.closeMenu}
+        data-menu-close
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+
+    <nav class="container-page flex-1 overflow-y-auto py-6" aria-label={dict.a11y.mainNav}>
+      <ul class="grid gap-1">
+        {
+          items.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={item.current ? 'page' : undefined}
+                class:list={[
+                  'flex min-h-14 items-center border-b border-line/60 font-display text-2xl transition-colors duration-200',
+                  item.current ? 'text-accent-text' : 'text-text',
+                ]}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="container-page flex shrink-0 items-center justify-between gap-4 border-t border-line py-4">
+      <LocaleSwitch locale={locale} routeKey={routeKey} slug={slug} />
+      <a
+        href={path('contact', locale)}
+        class="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast"
+      >
+        {dict.cta.contact}
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  /*
+    Over a full-bleed hero the bar starts invisible and the marks read white;
+    once the page scrolls past the hero it settles into the normal surface.
+    Both states keep every label above 4.5:1 against what sits behind it.
+  */
+  .site-header[data-over-hero]:not([data-scrolled='true']) {
+    background-color: transparent;
+    border-color: transparent;
+    color: #f6f2ec;
+  }
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(.logo) {
+    filter: brightness(0) invert(1);
+  }
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(a),
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(button) {
+    color: #f6f2ec;
+    border-color: rgb(246 242 236 / 0.4);
+  }
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(a[aria-current='page']) {
+    color: #f6f2ec;
+  }
+  /* The two filled controls keep their own colours. */
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(a.bg-accent),
+  .site-header[data-over-hero]:not([data-scrolled='true']) :global(a[aria-current='true']) {
+    background-color: var(--color-accent);
+    color: var(--color-accent-contrast);
+    border-color: transparent;
+  }
+
+  /*
+    The artwork is a black mountain with a bronze wordmark, drawn for light
+    backgrounds. On dark it would disappear, so render it as a solid white
+    mark there rather than inverting (which would flip the bronze to blue).
+  */
+  :global(:root[data-theme='dark']) .logo {
+    filter: brightness(0) invert(1);
+  }
+  .site-menu[open] {
+    display: block;
+  }
+</style>

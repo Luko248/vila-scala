@@ -1,0 +1,86 @@
+---
+import { Image } from 'astro:assets';
+import type { Unit } from '../data/units';
+import { path, t, tu, type Locale } from '../i18n';
+import StatusBadge from './StatusBadge.astro';
+
+interface Props {
+  locale: Locale;
+  unit: Unit;
+  /** Above-the-fold cards skip lazy loading. */
+  eager?: boolean;
+  index?: number;
+}
+const { locale, unit, eager = false, index = 0 } = Astro.props;
+const dict = t(locale);
+const copy = tu(locale);
+
+const href = path('unit', locale, unit.slug);
+const priceLabel = unit.price
+  ? new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+      style: 'currency',
+      currency: 'CZK',
+      maximumFractionDigits: 0,
+    }).format(unit.price)
+  : dict.units.priceOnRequest;
+
+const unitCopy = copy[unit.slug as '1039-1'];
+const heading = `${dict.units.labelUnit} ${unit.number}`;
+const numberFmt = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB');
+---
+
+<article
+  class="reveal group relative flex flex-col overflow-hidden rounded-card border border-line bg-elevated shadow-[var(--shadow-raise)] transition-colors duration-200 hover:border-line-strong"
+  data-reveal-delay={(index % 3) * 80}
+>
+  <div class="relative overflow-hidden bg-surface">
+    <Image
+      src={unit.hero}
+      alt={`${heading} — ${unitCopy.title}`}
+      widths={[400, 700, 1000]}
+      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 92vw"
+      loading={eager ? 'eager' : 'lazy'}
+      decoding={eager ? 'sync' : 'async'}
+      class:list={[
+        'aspect-[4/3] w-full object-cover transition-transform duration-500 ease-[var(--ease-out-soft)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+        unit.status === 'sold' && 'saturate-[0.55]',
+      ]}
+    />
+    <div class="absolute top-3 left-3">
+      <StatusBadge locale={locale} status={unit.status} short class="bg-bg/90 backdrop-blur-sm" />
+    </div>
+  </div>
+
+  <div class="flex flex-1 flex-col p-6">
+    <p class="text-xs font-semibold tracking-[0.14em] text-muted uppercase">{heading}</p>
+
+    <h3 class="mt-2 text-2xl">
+      <a href={href} class="after:absolute after:inset-0 after:content-['']">
+        {unit.layout}
+        <span class="text-muted">· {unit.floorLabel[locale]}</span>
+      </a>
+    </h3>
+
+    <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+      <div>
+        <dt class="text-muted">{dict.units.floorArea}</dt>
+        <dd class="font-medium">{numberFmt.format(unit.areas.floor)} m²</dd>
+      </div>
+      <div>
+        <dt class="text-muted">{dict.units.outdoor}</dt>
+        <dd class="font-medium">{numberFmt.format(unit.outdoorTotal)} m²</dd>
+      </div>
+    </dl>
+
+    <p class="mt-6 flex-1 font-display text-2xl text-accent-text">
+      {unit.status === 'soon' ? dict.status.soon : priceLabel}
+    </p>
+
+    <p class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-text">
+      {dict.cta.viewUnit}
+      <svg class="size-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14m0 0-5-5m5 5-5 5" />
+      </svg>
+    </p>
+  </div>
+</article>

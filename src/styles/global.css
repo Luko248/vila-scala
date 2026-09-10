@@ -1,0 +1,326 @@
+@import 'tailwindcss';
+
+/* Self-hosted. latin-ext carries the Czech diacritics. */
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource/cormorant-garamond/latin-400.css';
+@import '@fontsource/cormorant-garamond/latin-600.css';
+@import '@fontsource/cormorant-garamond/latin-ext-400.css';
+@import '@fontsource/cormorant-garamond/latin-ext-600.css';
+
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ *
+ * The palette is taken from the building: warm plaster, exposed rock and
+ * corten steel. Nothing here is pure white or pure black — paper and soot
+ * instead. Every text pair clears 4.5:1 in both themes (most clear AAA)
+ * and control borders clear 3:1.
+ * ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Cormorant Garamond', ui-serif, Georgia, 'Times New Roman', serif;
+
+  --spacing: 0.25rem;
+  --radius-card: 2px;
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Exaggerated hierarchy: display type is the layout, meta type is a whisper. */
+  --text-display: clamp(2.75rem, 8vw, 8.5rem);
+  --text-display--line-height: 0.94;
+  --text-h2: clamp(2rem, 4.6vw, 4rem);
+  --text-h2--line-height: 1.02;
+  --text-h3: clamp(1.5rem, 2.4vw, 2.25rem);
+  --text-h3--line-height: 1.12;
+  --text-meta: 0.6875rem;
+  --text-meta--line-height: 1.2;
+  --text-meta--letter-spacing: 0.18em;
+}
+
+:root {
+  color-scheme: light;
+
+  --c-bg: #f4f1ec;
+  --c-elevated: #fffdfa;
+  --c-surface: #e9e4db;
+  --c-text: #14110f;
+  --c-muted: #5c544c;
+  --c-line: #d9d2c6;
+  --c-line-strong: #8f8271;
+  --c-accent: #99461b;
+  --c-accent-text: #99461b;
+  --c-accent-contrast: #fffdfa;
+  --c-available: #1f6b3a;
+  --c-soon: #7a4e06;
+  --c-sold: #5c544c;
+
+  --grain-opacity: 0.05;
+  --shadow-raise: 0 1px 1px rgb(20 17 15 / 0.04), 0 12px 32px -16px rgb(20 17 15 / 0.22);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --c-bg: #0e0c0b;
+  --c-elevated: #171412;
+  --c-surface: #1e1a17;
+  --c-text: #f4efe8;
+  --c-muted: #a99f94;
+  --c-line: #2b2622;
+  --c-line-strong: #7a6e64;
+  --c-accent: #dc8a55;
+  --c-accent-text: #dc8a55;
+  --c-accent-contrast: #14110f;
+  --c-available: #6ec98c;
+  --c-soon: #e0b457;
+  --c-sold: #a99f94;
+
+  --grain-opacity: 0.07;
+  --shadow-raise: 0 1px 1px rgb(0 0 0 / 0.5), 0 12px 32px -16px rgb(0 0 0 / 0.8);
+}
+
+/* Semantic tokens, exposed as Tailwind utilities (bg-bg, text-muted, …). */
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-elevated: var(--c-elevated);
+  --color-surface: var(--c-surface);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-accent: var(--c-accent);
+  --color-accent-text: var(--c-accent-text);
+  --color-accent-contrast: var(--c-accent-contrast);
+  --color-available: var(--c-available);
+  --color-soon: var(--c-soon);
+  --color-sold: var(--c-sold);
+}
+
+@layer base {
+  * {
+    min-width: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* The sticky header must never hide a focused or scrolled-to target. */
+    scroll-padding-top: calc(var(--header-h, 4.5rem) + 1.5rem);
+  }
+
+  body {
+    position: relative;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  /* A fine film grain over everything — the difference between a screen
+     and a printed page. Purely decorative, never intercepts a pointer. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.018em;
+    text-wrap: balance;
+    font-variant-numeric: lining-nums;
+  }
+
+  p, li {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+  }
+
+  img, svg, video {
+    display: block;
+    max-width: 100%;
+  }
+
+  img {
+    height: auto;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 84rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 5vw, 4.5rem);
+  }
+
+  /* Tiny uppercase meta label — the quiet half of the type hierarchy. */
+  .meta {
+    font-family: var(--font-sans);
+    font-size: var(--text-meta);
+    line-height: var(--text-meta--line-height);
+    letter-spacing: var(--text-meta--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Hairline rule, the same weight everywhere regardless of zoom. */
+  .rule {
+    border: 0;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .prose-vs {
+    max-width: 64ch;
+  }
+  .prose-vs p + p,
+  .prose-vs p + ul,
+  .prose-vs ul + p {
+    margin-top: 1.15em;
+  }
+  .prose-vs ul {
+    list-style: none;
+    display: grid;
+    gap: 0.6em;
+  }
+  .prose-vs ul > li {
+    position: relative;
+    padding-inline-start: 1.5em;
+  }
+  .prose-vs ul > li::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.68em;
+    width: 0.7em;
+    height: 1px;
+    background: var(--color-accent);
+  }
+  .prose-vs strong {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .prose-vs a {
+    color: var(--color-accent-text);
+    text-underline-offset: 3px;
+    text-decoration-line: underline;
+  }
+
+  /* Underline that draws in from the left on hover/focus. */
+  .link-draw {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 0.4s var(--ease-editorial);
+  }
+  .link-draw:hover,
+  .link-draw:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Scroll reveal — dial: motion 3/10. Subtle, and never load-bearing. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 0.7s var(--ease-editorial),
+      transform 0.7s var(--ease-editorial);
+  }
+  .reveal[data-shown='true'] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Display headings rise out from behind a mask instead of just fading. */
+  .reveal-line {
+    display: block;
+    overflow: hidden;
+  }
+  .reveal-line > * {
+    display: block;
+    transform: translateY(105%);
+    transition: transform 0.9s var(--ease-editorial);
+  }
+  .reveal-line[data-shown='true'] > * {
+    transform: none;
+  }
+}
+
+@layer utilities {
+  /* Lets a figure break out of the text column into the page gutter. */
+  .bleed-end {
+    margin-inline-end: calc(clamp(1.25rem, 5vw, 4.5rem) * -1);
+  }
+  .bleed-start {
+    margin-inline-start: calc(clamp(1.25rem, 5vw, 4.5rem) * -1);
+  }
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Anyone who asked for less motion gets the final state, immediately. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal,
+  .reveal-line > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* No JS? Never leave content invisible. */
+.no-js .reveal,
+.no-js .reveal-line > * {
+  opacity: 1;
+  transform: none;
+}
+
+@media print {
+  header[data-site-header],
+  footer[data-site-footer],
+  .no-print {
+    display: none !important;
+  }
+  body::after {
+    display: none;
+  }
+}

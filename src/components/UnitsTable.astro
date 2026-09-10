@@ -1,0 +1,80 @@
+---
+import { units } from '../data/units';
+import { path, t, tu, type Locale } from '../i18n';
+import StatusBadge from './StatusBadge.astro';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+const { locale, class: className = '' } = Astro.props;
+const dict = t(locale);
+const copy = tu(locale);
+const c = dict.unitsPage;
+
+const nf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB');
+const cf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+  style: 'currency',
+  currency: 'CZK',
+  maximumFractionDigits: 0,
+});
+---
+
+<!-- Wide data needs a scroll container of its own; the page never scrolls sideways. -->
+<div class:list={['reveal -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0', className]}>
+  <table class="w-full min-w-[46rem] border-collapse text-left text-sm">
+    <caption class="sr-only">{c.tableCaption}</caption>
+    <thead>
+      <tr class="border-b border-line-strong">
+        <th scope="col" class="py-3 pr-4 font-semibold">{c.colUnit}</th>
+        <th scope="col" class="py-3 pr-4 font-semibold">{c.colLayout}</th>
+        <th scope="col" class="py-3 pr-4 font-semibold">{c.colFloor}</th>
+        <th scope="col" class="py-3 pr-4 text-right font-semibold">{c.colArea}</th>
+        <th scope="col" class="py-3 pr-4 text-right font-semibold">{c.colOutdoor}</th>
+        <th scope="col" class="py-3 pr-4 font-semibold">{c.colPrice}</th>
+        <th scope="col" class="py-3 font-semibold"><span class="sr-only">{c.colDetail}</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        units.map((u) => (
+          <tr class="border-b border-line align-middle">
+            <th scope="row" class="py-4 pr-4 font-medium whitespace-nowrap">
+              {u.number}
+            </th>
+            <td class="py-4 pr-4 whitespace-nowrap">{u.layout}</td>
+            <td class="py-4 pr-4 whitespace-nowrap text-muted">{u.floorLabel[locale]}</td>
+            <td class="py-4 pr-4 text-right whitespace-nowrap tabular-nums">
+              {nf.format(u.areas.floor)} m²
+            </td>
+            <td class="py-4 pr-4 text-right whitespace-nowrap tabular-nums">
+              {nf.format(u.outdoorTotal)} m²
+            </td>
+            <td class="py-4 pr-4">
+              {u.price ? (
+                <span class="font-medium whitespace-nowrap">{cf.format(u.price)}</span>
+              ) : (
+                <StatusBadge locale={locale} status={u.status} short />
+              )}
+            </td>
+            <td class="py-4 text-right">
+              <a
+                href={path('unit', locale, u.slug)}
+                class="inline-flex min-h-11 items-center gap-1.5 font-medium text-accent-text underline-offset-4 hover:underline"
+              >
+                {dict.cta.viewUnit}
+                <span class="sr-only">
+                  {' '}
+                  {dict.units.labelUnit} {u.number} — {copy[u.slug as '1039-1'].title}
+                </span>
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14m0 0-5-5m5 5-5 5" />
+                </svg>
+              </a>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>

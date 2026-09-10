@@ -1,0 +1,22 @@
+---
+interface Props {
+  id?: string;
+  /** Renders a tinted band instead of the page background. */
+  tone?: 'default' | 'surface';
+  class?: string;
+  labelledby?: string;
+}
+const { id, tone = 'default', class: className = '', labelledby } = Astro.props;
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledby}
+  class:list={[
+    'py-20 sm:py-28',
+    tone === 'surface' && 'border-y border-line bg-surface',
+    className,
+  ]}
+>
+  <div class="container-page"><slot /></div>
+</section>

@@ -1,0 +1,124 @@
+---
+import { Image } from 'astro:assets';
+import poster from '../assets/images/hero-poster.jpg';
+import { t, withBase, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  eyebrow: string;
+  /** Split across lines; each line is masked and rises independently. */
+  titleLines: string[];
+  subtitle: string;
+  posterAlt: string;
+  /** Small facts printed along the bottom rule, masthead style. */
+  facts: { label: string; value: string }[];
+}
+const { locale, eyebrow, titleLines, subtitle, posterAlt, facts } = Astro.props;
+const dict = t(locale);
+---
+
+<section class="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[#0b0908] text-[#f6f2ec]">
+  <!--
+    The poster paints first and is what LCP measures; the loop is fetched
+    afterwards by app.ts, and only when the visitor has not asked for
+    reduced motion or turned on Save-Data.
+  -->
+  <Image
+    src={poster}
+    alt={posterAlt}
+    widths={[640, 1024, 1440, 1920]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    decoding="sync"
+    class="absolute inset-0 -z-20 size-full object-cover"
+  />
+
+  <video
+    data-hero-video
+    data-src-wide={withBase("/video/hero-1280.mp4")}
+    data-src-narrow={withBase("/video/hero-854.mp4")}
+    class="absolute inset-0 -z-20 size-full object-cover opacity-0 transition-opacity duration-1000 ease-[var(--ease-editorial)] data-[ready=true]:opacity-100"
+    muted
+    loop
+    playsinline
+    preload="none"
+    aria-hidden="true"
+    tabindex="-1"></video>
+
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(11_9_8/0.94)_0%,rgb(11_9_8/0.86)_30%,rgb(11_9_8/0.62)_62%,rgb(11_9_8/0.52)_100%)]"
+  >
+  </div>
+  <!-- A second wash from the text edge, so the headline never fights foliage. -->
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgb(11_9_8/0.55)_0%,rgb(11_9_8/0.28)_45%,rgb(11_9_8/0)_78%)]"
+  >
+  </div>
+
+  <div class="container-page relative flex flex-1 flex-col justify-end pt-28 pb-6 sm:pb-8">
+    <div class="mb-5 flex items-center justify-between gap-4 sm:mb-8">
+      <p class="reveal meta text-[#f6f2ec]/70">{eyebrow}</p>
+
+      <!--
+        WCAG 2.2.2: motion that starts on its own and runs past five seconds
+        needs a way to stop it. Revealed only once the loop actually plays.
+      -->
+      <button
+        type="button"
+        data-hero-toggle
+        data-label-pause={dict.a11y.pauseVideo}
+        data-label-play={dict.a11y.playVideo}
+        hidden
+        class="grid size-11 shrink-0 cursor-pointer place-items-center rounded-full border border-[#f6f2ec]/35 text-[#f6f2ec] transition-colors duration-200 hover:bg-[#f6f2ec]/12"
+      >
+        <span class="sr-only" data-hero-toggle-label>{dict.a11y.pauseVideo}</span>
+        <span data-icon-pause class="contents">
+          <svg class="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <rect x="3.5" y="2.5" width="3" height="11" rx="1" />
+            <rect x="9.5" y="2.5" width="3" height="11" rx="1" />
+          </svg>
+        </span>
+        <span data-icon-play class="contents" hidden>
+          <svg class="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M4 2.6v10.8a1 1 0 0 0 1.53.85l8.4-5.4a1 1 0 0 0 0-1.7l-8.4-5.4A1 1 0 0 0 4 2.6Z" />
+          </svg>
+        </span>
+      </button>
+    </div>
+
+    <h1 class="max-w-[16ch] text-display">
+      {
+        titleLines.map((line, i) => (
+          <span class="reveal-line" data-reveal-delay={i * 110}>
+            <span>{line}</span>
+          </span>
+        ))
+      }
+    </h1>
+
+    <div class="mt-7 flex flex-col gap-7 sm:mt-10 sm:gap-9 lg:flex-row lg:items-end lg:justify-between">
+      <p class="reveal max-w-md text-base text-[#f6f2ec]/85 sm:text-lg" data-reveal-delay="260">{subtitle}</p>
+      <div class="reveal flex flex-wrap gap-3" data-reveal-delay="340">
+        <slot />
+      </div>
+    </div>
+
+    <!-- Masthead rule: the numbers a buyer scans for, before any scrolling. -->
+    <div class="reveal mt-8 border-t border-[#f6f2ec]/25 pt-4 sm:mt-12 sm:pt-5" data-reveal-delay="420">
+      <dl class="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 sm:gap-y-5">
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="meta text-[#f6f2ec]/55">{f.label}</dt>
+              <dd class="mt-1 font-display text-xl sm:mt-1.5 sm:text-3xl">{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+
+</section>

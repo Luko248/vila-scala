@@ -1,0 +1,57 @@
+---
+import type { UnitStatus } from '../data/units';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  status: UnitStatus;
+  short?: boolean;
+  class?: string;
+}
+const { locale, status, short = false, class: className = '' } = Astro.props;
+const dict = t(locale);
+
+const label = short
+  ? { available: dict.status.availableShort, soon: dict.status.soonShort, sold: dict.status.soldShort }[status]
+  : { available: dict.status.available, soon: dict.status.soon, sold: dict.status.sold }[status];
+
+const tone = {
+  available: 'text-available',
+  soon: 'text-soon',
+  sold: 'text-sold',
+}[status];
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-2 rounded-full border border-current/25 px-3 py-1 text-xs font-semibold tracking-wide',
+    tone,
+    className,
+  ]}
+>
+  <!-- Shape as well as colour, so status never depends on hue alone. -->
+  {
+    status === 'available' && (
+      <svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 8.5 6.5 12 13 4.5" />
+      </svg>
+    )
+  }
+  {
+    status === 'soon' && (
+      <svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="8" cy="8" r="6" />
+        <path d="M8 4.6V8l2.2 1.6" />
+      </svg>
+    )
+  }
+  {
+    status === 'sold' && (
+      <svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <circle cx="8" cy="8" r="6" />
+        <path d="M4.4 11.6 11.6 4.4" />
+      </svg>
+    )
+  }
+  {label}
+</span>

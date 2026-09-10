@@ -1,0 +1,54 @@
+---
+import { site } from '../data/site';
+import { path, t, type Locale, type RouteKey } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Ancestors, excluding the current page. */
+  trail: { key: RouteKey; slug?: string }[];
+  current: string;
+}
+const { locale, trail, current } = Astro.props;
+const dict = t(locale);
+
+const crumbs = [
+  { label: dict.nav.home, href: path('home', locale) },
+  ...trail.map((c) => ({ label: dict.nav[c.key as keyof typeof dict.nav], href: path(c.key, locale, c.slug) })),
+];
+
+export const schemaFor = () => null;
+---
+
+<nav aria-label={dict.a11y.breadcrumb} class="container-page pt-8">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+    {
+      crumbs.map((c) => (
+        <li class="flex items-center gap-2">
+          <a href={c.href} class="underline-offset-4 hover:text-text hover:underline">
+            {c.label}
+          </a>
+          <span aria-hidden="true" class="text-line-strong">/</span>
+        </li>
+      ))
+    }
+    <li aria-current="page" class="text-text">{current}</li>
+  </ol>
+</nav>
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      ...crumbs.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.label,
+        item: new URL(c.href, site.url).href,
+      })),
+      { '@type': 'ListItem', position: crumbs.length + 1, name: current },
+    ],
+  })}
+/>

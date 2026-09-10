@@ -1,0 +1,89 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image, getImage } from 'astro:assets';
+import { t, type Locale } from '../i18n';
+
+export interface GalleryItem {
+  src: ImageMetadata;
+  alt: string;
+}
+
+interface Props {
+  locale: Locale;
+  items: GalleryItem[];
+  /** Masonry-ish editorial grid, or a plain even grid. */
+  variant?: 'editorial' | 'grid';
+  /**
+   * Photographs are cropped to a common rhythm; drawings must never be —
+   * a cropped floor plan is a wrong floor plan.
+   */
+  fit?: 'cover' | 'contain';
+  class?: string;
+}
+
+const {
+  locale,
+  items,
+  variant = 'editorial',
+  fit = 'cover',
+  class: className = '',
+} = Astro.props;
+const dict = t(locale);
+
+// Full-resolution (but still optimised) sources for the lightbox.
+const full = await Promise.all(
+  items.map((item) =>
+    getImage({ src: item.src, format: 'webp', quality: 82, width: Math.min(item.src.width, 2000) }),
+  ),
+);
+
+// A repeating rhythm that keeps the grid interesting without art-directing
+// every single tile by hand.
+const spans = ['sm:col-span-4', 'sm:col-span-2', 'sm:col-span-2', 'sm:col-span-4', 'sm:col-span-3', 'sm:col-span-3'];
+---
+
+<div
+  data-gallery
+  class:list={[
+    'grid gap-3 sm:gap-4',
+    variant === 'editorial' ? 'sm:grid-cols-6' : 'grid-cols-2 lg:grid-cols-3',
+    className,
+  ]}
+>
+  {
+    items.map((item, i) => (
+      <figure
+        data-lb-item
+        data-lb-src={full[i].src}
+        data-lb-alt={item.alt}
+        data-lb-width={full[i].attributes.width ?? item.src.width}
+        data-lb-height={full[i].attributes.height ?? item.src.height}
+        class:list={['reveal group relative m-0', variant === 'editorial' && spans[i % spans.length]]}
+        data-reveal-delay={(i % 3) * 70}
+      >
+        <button
+          type="button"
+          data-lb-trigger
+          class="block w-full cursor-pointer overflow-hidden rounded-card bg-surface"
+          aria-label={`${dict.a11y.openGallery}: ${item.alt}`}
+        >
+          <Image
+            src={item.src}
+            alt={item.alt}
+            widths={[400, 700, 1000, 1400]}
+            sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 92vw"
+            loading="lazy"
+            decoding="async"
+            class:list={[
+              'aspect-[4/3] w-full transition-transform duration-500 ease-[var(--ease-out-soft)] motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+              fit === 'contain'
+                ? 'bg-elevated object-contain p-2 group-hover:scale-[1.015]'
+                : 'object-cover group-hover:scale-[1.03]',
+            ]}
+          />
+        </button>
+        <figcaption class="sr-only">{item.alt}</figcaption>
+      </figure>
+    ))
+  }
+</div>

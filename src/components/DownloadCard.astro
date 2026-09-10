@@ -1,0 +1,59 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  href: string;
+  title: string;
+  meta?: string;
+  /** Optional secondary link rendered beneath the download action. */
+  linkHref?: string;
+  linkLabel?: string;
+  index?: number;
+}
+const { locale, href, title, meta, linkHref, linkLabel, index = 0 } = Astro.props;
+const dict = t(locale);
+---
+
+<div
+  class="reveal flex h-full flex-col rounded-card border border-line bg-elevated p-6 transition-colors duration-200 hover:border-line-strong"
+  data-reveal-delay={(index % 3) * 70}
+>
+  <div class="flex items-start gap-4">
+    <span class="grid size-11 shrink-0 place-items-center rounded-full bg-surface text-accent-text">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+        <path d="M14 3v5h5" />
+      </svg>
+    </span>
+    <div class="min-w-0">
+      <h3 class="font-sans text-base font-semibold">{title}</h3>
+      {meta && <p class="mt-1 text-sm text-muted">{meta}</p>}
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 pt-0">
+    <a
+      href={href}
+      download
+      class="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-accent-text underline-offset-4 hover:underline"
+    >
+      {dict.cta.downloadPdf}
+      <span class="sr-only">— {title} ({dict.a11y.pdfFile})</span>
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+      </svg>
+    </a>
+    {
+      linkHref && linkLabel && (
+        <a
+          href={linkHref}
+          class="inline-flex min-h-11 items-center text-sm text-muted underline-offset-4 hover:text-text hover:underline"
+        >
+          {linkLabel}
+          <span class="sr-only"> — {title}</span>
+        </a>
+      )
+    }
+  </div>
+</div>

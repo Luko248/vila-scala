@@ -1,0 +1,127 @@
+---
+import { Image } from 'astro:assets';
+import { units } from '../data/units';
+import { path, t, tu, type Locale } from '../i18n';
+import StatusBadge from './StatusBadge.astro';
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+const { locale, class: className = '' } = Astro.props;
+const dict = t(locale);
+const copy = tu(locale);
+
+const nf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB');
+const cf = new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+  style: 'currency',
+  currency: 'CZK',
+  maximumFractionDigits: 0,
+});
+
+const rows = units.map((u, i) => ({
+  unit: u,
+  index: String(i + 1).padStart(2, '0'),
+  title: copy[u.slug as '1039-1'].title,
+  href: path('unit', locale, u.slug),
+  price: u.price
+    ? cf.format(u.price)
+    : u.status === 'soon'
+      ? `${nf.format(u.areas.floor)} m²`
+      : dict.units.priceOnRequest,
+}));
+---
+
+<!--
+  An index, not a card wall: the figures a buyer compares line up on one
+  axis, and the photograph appears alongside on hover. Below `lg` the photo
+  sits inline above the text, because hover does not exist there.
+-->
+<ol class:list={['unit-index border-t border-line', className]}>
+  {
+    rows.map(({ unit, index, title, href, price }, i) => (
+      <li class="reveal border-b border-line" data-reveal-delay={i * 60}>
+        <a
+          href={href}
+          class="unit-row grid gap-x-8 gap-y-5 py-7 lg:grid-cols-[3.5rem_minmax(0,1fr)_11rem_auto] lg:items-center lg:py-9"
+        >
+          <span class="meta text-accent-text lg:pt-1">{index}</span>
+
+          <div class="lg:order-2">
+            <span class="meta block text-muted">
+              {dict.units.labelUnit} {unit.number}
+            </span>
+            <h3 class="mt-2 text-h3">
+              <span class="link-draw">{unit.layout}</span>
+              <span class="text-muted"> · {unit.floorLabel[locale]}</span>
+            </h3>
+            <p class="mt-2 max-w-lg text-sm text-muted">{title}</p>
+          </div>
+
+          <span class="unit-thumb order-first block overflow-hidden bg-surface lg:order-3">
+            <Image
+              src={unit.hero}
+              alt=""
+              widths={[320, 560, 800]}
+              sizes="(min-width: 1024px) 11rem, 92vw"
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+              class:list={[
+                'aspect-[16/10] w-full object-cover',
+                unit.status === 'sold' && 'saturate-[0.5]',
+              ]}
+            />
+          </span>
+
+          <div class="flex flex-wrap items-center justify-between gap-4 lg:order-4 lg:flex-col lg:items-end lg:justify-center lg:gap-2.5 lg:text-right">
+            <StatusBadge locale={locale} status={unit.status} short />
+            <span class="font-display text-2xl whitespace-nowrap text-accent-text lg:text-3xl">
+              {price}
+            </span>
+          </div>
+        </a>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  @media (min-width: 1024px) {
+    /* Hovering one row dims the rest, so attention lands where the cursor is.
+       Focus behaves the same way, so keyboard users get the same signal. */
+    .unit-index:hover .unit-row,
+    .unit-index:focus-within .unit-row {
+      opacity: 0.42;
+      transition: opacity 0.45s var(--ease-editorial);
+    }
+    .unit-index .unit-row:hover,
+    .unit-index .unit-row:focus-visible {
+      opacity: 1;
+    }
+
+    .unit-thumb {
+      height: 7rem;
+      opacity: 0;
+      transform: scale(0.94);
+      transform-origin: left center;
+      transition:
+        opacity 0.45s var(--ease-editorial),
+        transform 0.45s var(--ease-editorial);
+    }
+    .unit-thumb :global(img) {
+      height: 7rem;
+      aspect-ratio: auto;
+    }
+    .unit-row:hover .unit-thumb,
+    .unit-row:focus-visible .unit-thumb {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .unit-thumb {
+      transition: none;
+    }
+  }
+</style>

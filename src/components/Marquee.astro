@@ -1,0 +1,43 @@
+---
+interface Props {
+  text: string;
+  /** Seconds for one full pass. Slower reads as confident, not frantic. */
+  duration?: number;
+}
+const { text, duration = 58 } = Astro.props;
+/* Two identical runs make the translate(-50%) loop seamless. */
+const runs = [0, 1];
+---
+
+<div
+  class="marquee relative overflow-hidden border-y border-line bg-surface py-5"
+  data-marquee
+  aria-hidden="true"
+>
+  <div class="marquee-track flex w-max" style={`--marquee-duration:${duration}s`}>
+    {
+      runs.map(() => (
+        <span class="flex shrink-0 items-center gap-6 pr-6 font-display text-3xl whitespace-nowrap text-muted sm:text-4xl">
+          {text}
+          <span class="text-accent-text">/</span>
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .marquee-track {
+    animation: marquee-scroll var(--marquee-duration) linear infinite;
+  }
+  /* Stops on hover and on keyboard focus anywhere inside the page region. */
+  .marquee:hover .marquee-track,
+  .marquee[data-paused='true'] .marquee-track {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+</style>

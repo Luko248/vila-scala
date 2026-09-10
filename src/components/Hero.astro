@@ -1,0 +1,57 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  image: ImageMetadata;
+  alt: string;
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+}
+const { image, alt, eyebrow, title, subtitle } = Astro.props;
+---
+
+<!--
+  Inner-page banner. Shorter than the homepage hero and always dark, so the
+  header can sit over it in the same white-on-photograph state.
+-->
+<section class="relative isolate flex min-h-[clamp(24rem,58svh,38rem)] items-end overflow-hidden bg-[#0b0908] text-[#f6f2ec]">
+  <Image
+    src={image}
+    alt={alt}
+    widths={[640, 960, 1400, 1920]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    decoding="sync"
+    class="absolute inset-0 -z-20 size-full object-cover"
+  />
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 -z-10 bg-[linear-gradient(to_top,rgb(11_9_8/0.92)_0%,rgb(11_9_8/0.78)_34%,rgb(11_9_8/0.5)_70%,rgb(11_9_8/0.45)_100%)]"
+  >
+  </div>
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgb(11_9_8/0.5)_0%,rgb(11_9_8/0.22)_50%,rgb(11_9_8/0)_82%)]"
+  >
+  </div>
+
+  <div class="container-page relative w-full pt-32 pb-14 sm:pb-20">
+    <div class="max-w-4xl">
+      {eyebrow && <p class="reveal meta mb-6 text-[#f6f2ec]/70">{eyebrow}</p>}
+      <h1 class="text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.98]">
+        <span class="reveal-line"><span>{title}</span></span>
+      </h1>
+      {
+        subtitle && (
+          <p class="reveal mt-7 max-w-2xl text-lg text-[#f6f2ec]/85 sm:text-xl" data-reveal-delay="140">
+            {subtitle}
+          </p>
+        )
+      }
+      <slot />
+    </div>
+  </div>
+</section>
