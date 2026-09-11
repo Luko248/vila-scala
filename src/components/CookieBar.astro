@@ -14,10 +14,11 @@ const c = t(locale).cookies;
   hidden
   role="region"
   aria-labelledby="cookie-bar-title"
+  aria-describedby="cookie-bar-description"
   class="no-print fixed inset-x-0 bottom-0 z-70 max-h-[70svh] overflow-y-auto border-t border-line bg-elevated p-5 text-text shadow-[0_-18px_50px_-28px_rgb(20_17_15/0.65)] sm:right-6 sm:bottom-6 sm:left-auto sm:w-[min(28rem,calc(100vw-3rem))] sm:rounded-card sm:border sm:p-7 sm:shadow-[var(--shadow-raise)]"
 >
   <p id="cookie-bar-title" class="font-display text-2xl font-semibold">{c.title}</p>
-  <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{c.body}</p>
+  <p id="cookie-bar-description" class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{c.body}</p>
 
   <div class="mt-6 grid gap-2 sm:grid-cols-2">
     <button
@@ -30,7 +31,7 @@ const c = t(locale).cookies;
     <button
       type="button"
       data-cookie-choice="all"
-      class="min-h-12 cursor-pointer rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90"
+      class="min-h-12 cursor-pointer rounded-full border border-line-strong px-5 text-sm font-medium text-text transition-colors duration-200 hover:bg-surface"
     >
       {c.all}
     </button>

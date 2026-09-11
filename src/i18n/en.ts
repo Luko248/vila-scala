@@ -369,10 +369,10 @@ const en: typeof cs = {
   },
 
   cookies: {
-    title: 'Cookies',
-    body: 'We use cookies to ensure the proper operation and security of our website and to provide you with the best possible browsing experience.',
-    necessary: 'Accept necessary',
-    all: 'Accept all',
+    title: 'Cookies and your privacy',
+    body: 'We use essential browser storage to operate the website and remember your choice. Optional cookies are enabled only with your consent.',
+    necessary: 'Necessary only',
+    all: 'Allow all',
     settings: 'Cookies',
   },
 

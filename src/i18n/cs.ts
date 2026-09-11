@@ -368,10 +368,10 @@ export default {
   },
 
   cookies: {
-    title: 'Cookies',
-    body: 'Používáme cookies, abychom zajistili správné fungování a bezpečnost našich stránek a nabídli vám co nejlepší zkušenost z jejich návštěvy.',
-    necessary: 'Přijmout nezbytné',
-    all: 'Přijmout vše',
+    title: 'Cookies a vaše soukromí',
+    body: 'Nezbytné ukládání v prohlížeči používáme pro fungování webu a zapamatování vaší volby. Volitelné cookies povolíme pouze s vaším souhlasem.',
+    necessary: 'Pouze nezbytné',
+    all: 'Povolit všechny',
     settings: 'Cookies',
   },
 
