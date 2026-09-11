@@ -53,18 +53,17 @@ const spans = ['sm:col-span-4', 'sm:col-span-2', 'sm:col-span-2', 'sm:col-span-4
   {
     items.map((item, i) => (
       <figure
-        data-lb-item
-        data-lb-src={full[i].src}
-        data-lb-alt={item.alt}
-        data-lb-width={full[i].attributes.width ?? item.src.width}
-        data-lb-height={full[i].attributes.height ?? item.src.height}
         class:list={['reveal group relative m-0', variant === 'editorial' && spans[i % spans.length]]}
         data-reveal-delay={(i % 3) * 70}
       >
-        <button
-          type="button"
-          data-lb-trigger
-          class="block w-full cursor-pointer overflow-hidden rounded-card bg-surface"
+        <a
+          href={full[i].src}
+          data-fancybox="vila-gallery"
+          data-caption={item.alt}
+          data-alt={item.alt}
+          data-width={full[i].attributes.width ?? item.src.width}
+          data-height={full[i].attributes.height ?? item.src.height}
+          class="button-link block w-full cursor-zoom-in overflow-hidden rounded-card bg-surface"
           aria-label={`${dict.a11y.openGallery}: ${item.alt}`}
         >
           <Image
@@ -82,7 +81,7 @@ const spans = ['sm:col-span-4', 'sm:col-span-2', 'sm:col-span-2', 'sm:col-span-4
                 : 'object-cover group-hover:scale-[1.03]',
             ]}
           />
-        </button>
+        </a>
         <figcaption class="sr-only">{item.alt}</figcaption>
       </figure>
     ))

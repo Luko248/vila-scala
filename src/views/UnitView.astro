@@ -5,7 +5,6 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Button from '../components/Button.astro';
 import Gallery from '../components/Gallery.astro';
 import Hero from '../components/Hero.astro';
-import Lightbox from '../components/Lightbox.astro';
 import Section from '../components/Section.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import StatusBadge from '../components/StatusBadge.astro';
@@ -218,6 +217,4 @@ const galleryItems = unit.gallery.map((src, i) => ({
       <Button href={path('units', locale)} variant="secondary">{dict.cta.backToUnits}</Button>
     </div>
   </Section>
-
-  <Lightbox locale={locale} />
 </BaseLayout>

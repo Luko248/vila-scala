@@ -1,6 +1,10 @@
+import { Fancybox } from '@fancyapps/ui/dist/fancybox/';
+import { en_EN } from '@fancyapps/ui/dist/fancybox/l10n/en_EN.js';
+import '@fancyapps/ui/dist/fancybox/fancybox.css';
+
 /**
- * The site's entire client-side budget: theme persistence, the mobile menu,
- * a scroll reveal and an accessible image lightbox. No framework, no polyfills.
+ * The site's client-side behaviour: theme persistence, navigation, galleries,
+ * media controls, the contact form and cookie preferences.
  */
 
 const prefersReducedMotion = () =>
@@ -73,124 +77,52 @@ function initMenu() {
   });
 }
 
-/* -------------------------------------------------------- lightbox ------ */
+/* -------------------------------------------------------- galleries ----- */
 
-interface Slide {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}
+const csFancybox = {
+  ...en_EN,
+  CLOSE: 'Zavřít',
+  NEXT: 'Další fotografie',
+  PREV: 'Předchozí fotografie',
+  MODAL: 'Galerii zavřete klávesou Escape',
+  IMAGE_ERROR: 'Fotografii se nepodařilo načíst. Zkuste to prosím znovu.',
+  ERROR: 'Něco se nepodařilo. Zkuste to prosím znovu.',
+  ZOOM_IN: 'Přiblížit',
+  ZOOM_OUT: 'Oddálit',
+  TOGGLE_FULL: 'Přepnout velikost fotografie',
+  TOGGLE_1TO1: 'Zobrazit ve skutečné velikosti',
+  TOGGLE_FULLSCREEN: 'Přepnout zobrazení na celou obrazovku',
+  TOGGLE_THUMBS: 'Zobrazit náhledy',
+};
 
-function initLightbox() {
-  const galleries = document.querySelectorAll<HTMLElement>('[data-gallery]');
-  if (!galleries.length) return;
+function initFancybox() {
+  if (!document.querySelector('[data-fancybox]')) return;
 
-  const dialog = document.querySelector<HTMLDialogElement>('#lightbox');
-  if (!dialog) return;
+  const reducedMotion = prefersReducedMotion();
 
-  const imgEl = dialog.querySelector<HTMLImageElement>('[data-lb-image]')!;
-  const counterEl = dialog.querySelector<HTMLElement>('[data-lb-counter]')!;
-  const captionEl = dialog.querySelector<HTMLElement>('[data-lb-caption]')!;
-  const prevBtn = dialog.querySelector<HTMLButtonElement>('[data-lb-prev]')!;
-  const nextBtn = dialog.querySelector<HTMLButtonElement>('[data-lb-next]')!;
-  const counterTemplate = counterEl.dataset.template ?? '{current} / {total}';
-
-  let slides: Slide[] = [];
-  let index = 0;
-  let opener: HTMLElement | null = null;
-
-  const render = () => {
-    const slide = slides[index];
-    if (!slide) return;
-    imgEl.src = slide.src;
-    imgEl.alt = slide.alt;
-    imgEl.width = slide.width;
-    imgEl.height = slide.height;
-    captionEl.textContent = slide.alt;
-    counterEl.textContent = counterTemplate
-      .replace('{current}', String(index + 1))
-      .replace('{total}', String(slides.length));
-    const single = slides.length < 2;
-    prevBtn.hidden = single;
-    nextBtn.hidden = single;
-  };
-
-  const go = (delta: number) => {
-    index = (index + delta + slides.length) % slides.length;
-    render();
-  };
-
-  const open = (gallery: HTMLElement, start: number, source: HTMLElement) => {
-    slides = [...gallery.querySelectorAll<HTMLElement>('[data-lb-item]')].map((el) => ({
-      src: el.dataset.lbSrc ?? '',
-      alt: el.dataset.lbAlt ?? '',
-      width: Number(el.dataset.lbWidth ?? 1600),
-      height: Number(el.dataset.lbHeight ?? 1200),
-    }));
-    index = start;
-    opener = source;
-    render();
-    dialog.showModal();
-    document.body.style.overflow = 'hidden';
-  };
-
-  galleries.forEach((gallery) => {
-    gallery.querySelectorAll<HTMLElement>('[data-lb-item]').forEach((item, i) => {
-      const trigger = item.querySelector<HTMLElement>('[data-lb-trigger]') ?? item;
-      trigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        open(gallery, i, trigger);
-      });
-    });
-  });
-
-  prevBtn.addEventListener('click', () => go(-1));
-  nextBtn.addEventListener('click', () => go(1));
-  dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
-
-  dialog.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      go(1);
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      go(-1);
-    }
-  });
-
-  // Click on the backdrop (i.e. the dialog element itself) closes.
-  dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close();
-  });
-
-  dialog.addEventListener('close', () => {
-    document.body.style.overflow = '';
-    imgEl.removeAttribute('src');
-    opener?.focus();
-    opener = null;
-  });
-
-  // Swipe between slides on touch, without hijacking vertical scrolling.
-  let startX = 0;
-  let startY = 0;
-  dialog.addEventListener(
-    'touchstart',
-    (e) => {
-      startX = e.changedTouches[0].clientX;
-      startY = e.changedTouches[0].clientY;
+  Fancybox.bind('[data-fancybox]', {
+    l10n: document.documentElement.lang.startsWith('cs') ? csFancybox : en_EN,
+    mainClass: 'vila-fancybox',
+    theme: 'dark',
+    placeFocusBack: true,
+    dragToClose: !reducedMotion,
+    zoomEffect: !reducedMotion,
+    showClass: reducedMotion ? false : 'f-zoomInUp',
+    hideClass: reducedMotion ? false : 'f-zoomOutDown',
+    Carousel: {
+      transition: reducedMotion ? false : 'fade',
+      Thumbs: {
+        type: 'modern',
+        showOnStart: true,
+      },
+      Toolbar: {
+        display: {
+          left: ['counter'],
+          right: ['zoomIn', 'zoomOut', 'fullscreen', 'thumbs', 'close'],
+        },
+      },
     },
-    { passive: true },
-  );
-  dialog.addEventListener(
-    'touchend',
-    (e) => {
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = e.changedTouches[0].clientY - startY;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
-    },
-    { passive: true },
-  );
+  });
 }
 
 
@@ -463,7 +395,7 @@ const boot = () => {
   initTheme();
   initHeader();
   initMenu();
-  initLightbox();
+  initFancybox();
   initHeroVideo();
   initMarquee();
   initContactForm();

@@ -14,7 +14,6 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Button from '../components/Button.astro';
 import Gallery from '../components/Gallery.astro';
 import Hero from '../components/Hero.astro';
-import Lightbox from '../components/Lightbox.astro';
 import Section from '../components/Section.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import UnitIndex from '../components/UnitIndex.astro';
@@ -120,6 +119,4 @@ const schema = [
     <SectionHeading id="units-gallery-title" index="03" eyebrow={dict.meta.siteName} title={c.galleryTitle} />
     <Gallery locale={locale} items={galleryItems} class="mt-12" />
   </Section>
-
-  <Lightbox locale={locale} />
 </BaseLayout>
