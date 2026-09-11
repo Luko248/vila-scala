@@ -21,6 +21,7 @@ const items = NAV_ORDER.map((key) => ({
   label: dict.nav[key],
   current: key === routeKey || (key === 'units' && routeKey === 'unit'),
 }));
+const desktopItems = items.filter((item) => item.key !== 'home');
 ---
 
 <header
@@ -47,7 +48,7 @@ const items = NAV_ORDER.map((key) => ({
     <nav aria-label={dict.a11y.mainNav} class="hidden lg:block">
       <ul class="flex items-center gap-1">
         {
-          items.map((item) => (
+          desktopItems.map((item) => (
             <li>
               <a
                 href={item.href}

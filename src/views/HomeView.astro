@@ -15,10 +15,9 @@ import viewSvratka from '../assets/images/view-svratka.jpg';
 import Button from '../components/Button.astro';
 import Gallery from '../components/Gallery.astro';
 import Lightbox from '../components/Lightbox.astro';
-import Marquee from '../components/Marquee.astro';
 import Section from '../components/Section.astro';
 import SectionHeading from '../components/SectionHeading.astro';
-import UnitIndex from '../components/UnitIndex.astro';
+import UnitCard from '../components/UnitCard.astro';
 import VideoHero from '../components/VideoHero.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
@@ -46,6 +45,16 @@ const galleryItems = [
 ];
 
 const priced = units.filter((u) => typeof u.price === 'number');
+const activeUnits = units.filter((u) => u.status !== 'sold');
+const availableCount = units.filter((u) => u.status === 'available').length;
+const heroFacts = c.heroFacts.map((fact, index) =>
+  index === 1
+    ? {
+        label: cs ? 'Aktuální nabídka' : 'Available now',
+        value: cs ? `${availableCount} volné byty` : `${availableCount} homes`,
+      }
+    : fact,
+);
 
 const schema = [
   {
@@ -101,7 +110,7 @@ const schema = [
     titleLines={[...c.heroTitleLines]}
     subtitle={c.heroSubtitle}
     posterAlt={c.heroPosterAlt}
-    facts={[...c.heroFacts]}
+    facts={heroFacts}
   >
     <Button href={path('units', locale)}>{dict.cta.viewUnits}</Button>
     <Button
@@ -113,11 +122,34 @@ const schema = [
     </Button>
   </VideoHero>
 
-  <Marquee text={c.marquee} />
+  <!-- The decision surface comes first: buyers can see what is actionable
+       before reading the longer project story. -->
+  <Section id="byty" tone="surface" labelledby="units-title" class="home-availability">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <SectionHeading
+        id="units-title"
+        index="01"
+        eyebrow={dict.nav.units}
+        title={c.unitsTitle}
+        lead={c.unitsSubtitle}
+      />
+      <div class="reveal hidden lg:block" data-reveal-delay="120">
+        <Button href={path('units', locale)} variant="secondary">{dict.cta.viewUnits}</Button>
+      </div>
+    </div>
+
+    <div class="mt-12 grid gap-5 md:grid-cols-2 lg:mt-16 lg:grid-cols-3">
+      {activeUnits.map((unit, index) => <UnitCard locale={locale} unit={unit} eager={index === 0} index={index} />)}
+    </div>
+
+    <div class="reveal mt-8 lg:hidden">
+      <Button href={path('units', locale)} variant="secondary" class="w-full">{dict.cta.viewUnits}</Button>
+    </div>
+  </Section>
 
   <!-- Intro: text column with a figure breaking into the gutter ---------- -->
   <Section labelledby="intro-title">
-    <SectionHeading id="intro-title" index="01" eyebrow={dict.nav.about} title={c.introTitle} />
+    <SectionHeading id="intro-title" index="02" eyebrow={dict.nav.about} title={c.introTitle} />
 
     <div class="mt-16 grid gap-12 lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-20">
       <div class="reveal prose-vs text-lg text-muted lg:pt-4" data-reveal-delay="120">
@@ -144,7 +176,7 @@ const schema = [
     </div>
   </Section>
 
-  <!-- Stats: oversized figures on hairline rules ------------------------- -->
+  <!-- Proof points: concise project facts after the core story. ---------- -->
   <Section tone="surface" labelledby="stats-title">
     <h2 id="stats-title" class="sr-only">{c.statsTitle}</h2>
     <dl class="grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -166,7 +198,7 @@ const schema = [
 
   <!-- Highlights: two-column editorial list ------------------------------ -->
   <Section labelledby="highlights-title">
-    <SectionHeading id="highlights-title" index="02" eyebrow={site.name} title={c.highlightsTitle} />
+    <SectionHeading id="highlights-title" index="03" eyebrow={site.name} title={c.highlightsTitle} />
     <ul class="mt-16 grid border-t border-line sm:grid-cols-2">
       {
         c.highlights.map((h, i) => (
@@ -181,21 +213,6 @@ const schema = [
         ))
       }
     </ul>
-  </Section>
-
-  <!-- Unit index --------------------------------------------------------- -->
-  <Section id="byty" tone="surface" labelledby="units-title">
-    <SectionHeading
-      id="units-title"
-      index="03"
-      eyebrow={dict.nav.units}
-      title={c.unitsTitle}
-      lead={c.unitsSubtitle}
-    />
-    <UnitIndex locale={locale} class="mt-16" />
-    <div class="reveal mt-12">
-      <Button href={path('units', locale)} variant="secondary">{dict.cta.viewUnits}</Button>
-    </div>
   </Section>
 
   <!-- Gallery ------------------------------------------------------------ -->

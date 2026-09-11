@@ -102,9 +102,10 @@ const schema = [
   <Section tone="surface" labelledby="units-list-title">
     <SectionHeading id="units-list-title" index="01" eyebrow={dict.nav.units} title={c.tableTitle} />
 
-    <UnitIndex locale={locale} class="mt-14" />
-
-    <UnitsTable locale={locale} class="mt-20" />
+    <!-- One comparison surface per viewport: tactile rows on small screens,
+         aligned figures on desktop. Avoid showing the same inventory twice. -->
+    <UnitIndex locale={locale} class="mt-14 lg:hidden" />
+    <UnitsTable locale={locale} class="mt-14 hidden lg:block" />
   </Section>
 
   <Section labelledby="floorplans-title">

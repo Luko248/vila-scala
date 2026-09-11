@@ -59,11 +59,8 @@ const rows = units.map((u, i) => ({
           </div>
 
           <!--
-            Every thumbnail is lazy. The first two were eager on the theory that
-            the opening rows sit near the fold; they do not — this is a
-            full-width vertical list and row one starts ~5200px down on a phone,
-            so eager only bought two requests competing with the hero for the
-            LCP window.
+            Every thumbnail is lazy. The image remains visible on desktop as a
+            useful comparison cue; hover only adds emphasis.
           -->
           <span class="unit-thumb order-first block overflow-hidden bg-surface lg:order-3">
             <Image
@@ -96,16 +93,13 @@ const rows = units.map((u, i) => ({
 <style>
   @media (min-width: 1024px) {
     /*
-      Dimming the other rows on hover was the original idea, but it dropped
-      their body text to 2.7:1 and the supporting line to 1.9:1 — unreadable
-      for the length of every hover, and no dim level keeps the muted line
-      above 4.5:1. The photograph and the drawn underline carry the hover
-      state instead.
+      The photograph stays visible so the image column never becomes unexplained
+      empty space. Hover and focus add a restrained zoom without dimming text.
     */
     .unit-thumb {
       height: 7rem;
-      opacity: 0;
-      transform: scale(0.94);
+      opacity: 0.82;
+      transform: scale(0.98);
       transform-origin: left center;
       transition:
         opacity 0.45s var(--ease-editorial),
@@ -119,6 +113,15 @@ const rows = units.map((u, i) => ({
     .unit-row:focus-visible .unit-thumb {
       opacity: 1;
       transform: none;
+    }
+
+    .unit-row {
+      transition: padding 0.35s var(--ease-editorial);
+    }
+
+    .unit-row:hover,
+    .unit-row:focus-visible {
+      padding-inline: 1rem;
     }
   }
 
