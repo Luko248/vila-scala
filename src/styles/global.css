@@ -252,34 +252,19 @@
     text-decoration: none;
   }
 
-  /*
-    Scroll reveal — dial: motion 3/10. Subtle, and never load-bearing.
-
-    Deliberately transform-only. Fading text from opacity 0 walks it through
-    states below 4.5:1, so for the length of the transition the copy is not
-    readable to anyone who needs that contrast — and it makes the contrast
-    audit flaky besides. A rise reads the same and stays legible throughout.
-  */
+  /* Scroll reveals are progressive enhancement: the visible, stationary
+     state is the fallback for browsers without view timelines. */
   .reveal {
-    transform: translateY(14px);
-    transition: transform 0.7s var(--ease-editorial);
-  }
-  .reveal[data-shown='true'] {
-    transform: none;
+    translate: none;
   }
 
-  /* Display headings rise out from behind a mask instead of just fading. */
   .reveal-line {
     display: block;
     overflow: hidden;
   }
   .reveal-line > * {
     display: block;
-    transform: translateY(105%);
-    transition: transform 0.9s var(--ease-editorial);
-  }
-  .reveal-line[data-shown='true'] > * {
-    transform: none;
+    translate: none;
   }
 }
 
@@ -302,6 +287,48 @@
   }
 }
 
+@keyframes reveal-rise {
+  from {
+    translate: 0 1rem;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes reveal-heading {
+  from {
+    translate: 0 105%;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+/* View timelines are Limited Availability, so the animation is isolated in
+   a feature query. Unsupported browsers keep the complete content visible. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 28%) {
+    .reveal {
+      animation-name: reveal-rise;
+      animation-duration: 1ms;
+      animation-timing-function: var(--ease-editorial);
+      animation-fill-mode: both;
+      animation-timeline: view(block);
+      animation-range: entry 0% cover 28%;
+    }
+
+    .reveal-line > * {
+      animation-name: reveal-heading;
+      animation-duration: 1ms;
+      animation-timing-function: var(--ease-editorial);
+      animation-fill-mode: both;
+      animation-timeline: view(block);
+      animation-range: entry 0% cover 32%;
+    }
+  }
+}
+
 /* Anyone who asked for less motion gets the final state, immediately. */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -309,20 +336,14 @@
   }
   .reveal,
   .reveal-line > * {
-    transform: none;
-    transition: none;
+    translate: none;
+    animation: none !important;
   }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* No JS? Never leave content shifted out of place. */
-.no-js .reveal,
-.no-js .reveal-line > * {
-  transform: none;
 }
 
 @media print {

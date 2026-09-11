@@ -73,33 +73,6 @@ function initMenu() {
   });
 }
 
-/* --------------------------------------------------------- reveal ------- */
-
-function initReveal() {
-  const items = document.querySelectorAll<HTMLElement>('.reveal, .reveal-line');
-  if (!items.length) return;
-
-  if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
-    items.forEach((el) => (el.dataset.shown = 'true'));
-    return;
-  }
-
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const el = entry.target as HTMLElement;
-        el.dataset.shown = 'true';
-        el.style.transitionDelay = `${el.dataset.revealDelay ?? 0}ms`;
-        io.unobserve(el);
-      }
-    },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
-  );
-
-  items.forEach((el) => io.observe(el));
-}
-
 /* -------------------------------------------------------- lightbox ------ */
 
 interface Slide {
@@ -490,7 +463,6 @@ const boot = () => {
   initTheme();
   initHeader();
   initMenu();
-  initReveal();
   initLightbox();
   initHeroVideo();
   initMarquee();
