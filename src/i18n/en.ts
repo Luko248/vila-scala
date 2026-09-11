@@ -368,6 +368,14 @@ const en: typeof cs = {
     body: 'The link is probably out of date or contains a typo. Try one of these pages instead.',
   },
 
+  cookies: {
+    title: 'Cookies',
+    body: 'We use cookies to ensure the proper operation and security of our website and to provide you with the best possible browsing experience.',
+    necessary: 'Accept necessary',
+    all: 'Accept all',
+    settings: 'Cookies',
+  },
+
   footer: {
     about:
       'A new villa house with five apartments on Veslařská street in Brno-Jundrov. Approved for use and ready to move into.',

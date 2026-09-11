@@ -437,6 +437,53 @@ function initContactForm() {
   });
 }
 
+/* ------------------------------------------------------------ cookies --- */
+
+function initCookieConsent() {
+  const bar = document.querySelector<HTMLElement>('[data-cookie-bar]');
+  if (!bar) return;
+
+  const storageKey = 'vs-cookie-consent';
+  const root = document.documentElement;
+
+  const read = () => {
+    try {
+      return localStorage.getItem(storageKey);
+    } catch {
+      return null;
+    }
+  };
+
+  const open = () => {
+    bar.hidden = false;
+    root.dataset.cookieBar = 'open';
+  };
+
+  const close = () => {
+    bar.hidden = true;
+    delete root.dataset.cookieBar;
+  };
+
+  bar.querySelectorAll<HTMLButtonElement>('[data-cookie-choice]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const choice = button.dataset.cookieChoice === 'all' ? 'all' : 'necessary';
+      try {
+        localStorage.setItem(storageKey, choice);
+      } catch {
+        /* The choice still applies for this page view when storage is unavailable. */
+      }
+      document.dispatchEvent(new CustomEvent('vs:cookie-consent', { detail: choice }));
+      close();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-cookie-settings]').forEach((button) => {
+    button.addEventListener('click', open);
+  });
+
+  if (!read()) open();
+}
+
 /* -------------------------------------------------------------- boot ---- */
 
 const boot = () => {
@@ -448,6 +495,7 @@ const boot = () => {
   initHeroVideo();
   initMarquee();
   initContactForm();
+  initCookieConsent();
 };
 
 if (document.readyState === 'loading') {

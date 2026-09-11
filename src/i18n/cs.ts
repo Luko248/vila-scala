@@ -367,6 +367,14 @@ export default {
     body: 'Odkaz je nejspíš zastaralý nebo obsahuje překlep. Zkuste některou z těchto stránek.',
   },
 
+  cookies: {
+    title: 'Cookies',
+    body: 'Používáme cookies, abychom zajistili správné fungování a bezpečnost našich stránek a nabídli vám co nejlepší zkušenost z jejich návštěvy.',
+    necessary: 'Přijmout nezbytné',
+    all: 'Přijmout vše',
+    settings: 'Cookies',
+  },
+
   footer: {
     about: 'Nový viladům s pěti byty na Veslařské ulici v Brně-Jundrově. Zkolaudováno, připraveno k nastěhování.',
     contactTitle: 'Kontakt',

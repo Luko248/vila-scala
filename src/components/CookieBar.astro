@@ -1,0 +1,46 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const c = t(locale).cookies;
+---
+
+<section
+  data-cookie-bar
+  hidden
+  role="region"
+  aria-labelledby="cookie-bar-title"
+  class="no-print fixed inset-x-0 bottom-0 z-70 max-h-[70svh] overflow-y-auto border-t border-line bg-elevated p-5 text-text shadow-[0_-18px_50px_-28px_rgb(20_17_15/0.65)] sm:right-6 sm:bottom-6 sm:left-auto sm:w-[min(28rem,calc(100vw-3rem))] sm:rounded-card sm:border sm:p-7 sm:shadow-[var(--shadow-raise)]"
+>
+  <p id="cookie-bar-title" class="font-display text-2xl font-semibold">{c.title}</p>
+  <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{c.body}</p>
+
+  <div class="mt-6 grid gap-2 sm:grid-cols-2">
+    <button
+      type="button"
+      data-cookie-choice="necessary"
+      class="min-h-12 cursor-pointer rounded-full border border-line-strong px-5 text-sm font-medium text-text transition-colors duration-200 hover:bg-surface"
+    >
+      {c.necessary}
+    </button>
+    <button
+      type="button"
+      data-cookie-choice="all"
+      class="min-h-12 cursor-pointer rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90"
+    >
+      {c.all}
+    </button>
+  </div>
+</section>
+
+<style is:global>
+  html[data-cookie-bar='open'] [data-mobile-actions] {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(100%);
+  }
+</style>
