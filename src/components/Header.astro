@@ -55,7 +55,7 @@ const desktopItems = items.filter((item) => item.key !== 'home');
                 data-astro-prefetch
                 aria-current={item.current ? 'page' : undefined}
                 class:list={[
-                  'relative flex h-11 items-center rounded-full px-3.5 text-[0.9375rem] transition-colors duration-200',
+                  'button-link relative flex h-11 items-center rounded-full px-3.5 text-[0.9375rem] transition-colors duration-200',
                   item.current
                     ? 'text-accent-text font-medium'
                     : 'text-muted hover:bg-surface hover:text-text',
@@ -81,7 +81,7 @@ const desktopItems = items.filter((item) => item.key !== 'home');
       <a
         href={path('contact', locale)}
         data-astro-prefetch
-        class="hidden h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90 lg:inline-flex"
+        class="button-link hidden h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast transition-opacity duration-200 hover:opacity-90 lg:inline-flex"
       >
         {dict.cta.contact}
       </a>
@@ -149,7 +149,7 @@ const desktopItems = items.filter((item) => item.key !== 'home');
       <LocaleSwitch locale={locale} routeKey={routeKey} slug={slug} />
       <a
         href={path('contact', locale)}
-        class="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast"
+        class="button-link inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-contrast"
       >
         {dict.cta.contact}
       </a>

@@ -242,6 +242,16 @@
     background-size: 100% 1px;
   }
 
+  /* Links presented as controls keep button semantics visually: their
+     labels never inherit editorial link underlines in any interaction state. */
+  .button-link,
+  .button-link:hover,
+  .button-link:focus,
+  .button-link:focus-visible,
+  .button-link:active {
+    text-decoration: none;
+  }
+
   /*
     Scroll reveal — dial: motion 3/10. Subtle, and never load-bearing.
 
